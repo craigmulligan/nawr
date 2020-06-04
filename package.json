@@ -1,23 +1,23 @@
 {
-  "name": "dolos",
-  "version": "1.0.0",
-  "description": "on-demand sql dbs",
+  "name": "nawr",
+  "version": "0.1.0-beta-0.2",
+  "description": "on-demand serverless sql dbs",
   "main": "lib/init.js",
   "bin": {
-    "dolos": "lib/bin/index.js"
+    "nawr": "lib/bin/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/hobochild/dolos.git"
+    "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
   "keywords": ["serverless", "next.js", "sql"],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hobochild/dolos/issues"
+    "url": "https://github.com/hobochild/now-now/issues"
   },
-  "homepage": "https://github.com/hobochild/dolos#readme"
+  "homepage": "https://github.com/hobochild/now-now#readme"
 }
