@@ -3,7 +3,7 @@ const Storage = require('./storage')
 const cli = require('./cli')
 const Umzug = require('umzug')
 
-module.exports = argv => {
+const migrate = argv => {
   // because the client relies on `process.env.NAWR_SQL_CONNECTION`
   // you have to lazy load it so that users can run nawr init first (which populates ^)
   const client = require('../client')
@@ -17,3 +17,6 @@ module.exports = argv => {
 
   return cli(migrator, argv)
 }
+
+migrate.help = cli.help
+module.exports = migrate

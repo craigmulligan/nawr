@@ -4,19 +4,13 @@ const { createDB, waitOnAvailable } = require('./aws')
 const path = require('path')
 const nanoid = require('./id')
 
-const CONNECTION_TYPES = Object.freeze({
-  postgres: 'postgres',
-  mysql: 'postgres'
-})
-const DIR = '.sql'
-
-const getConnectionValues = async buildId => {
+const getConnectionValues = async (buildId, opts) => {
   if (process.env.NAWR_SQL_CONNECTION) {
     console.log('connection details exist ignoring')
     return JSON.parse(process.env.NAWR_SQL_CONNECTION)
   }
 
-  const connectionValues = await createDB(buildId)
+  const connectionValues = await createDB(buildId, opts)
   await waitOnAvailable(connectionValues.resourceArn)
   return connectionValues
 }
@@ -43,11 +37,20 @@ const setEnv = async (envFilePath, env) => {
   }
 }
 
-const init = async () => {
-  const buildId = process.env.NAWR_SQL_IS_PROD ? 'prod' : nanoid()
+const init = async ({ engine }) => {
+  if (!engine) {
+    engine = 'postgresql'
+  }
+
+  const isProd = process.env.NAWR_SQL_IS_PROD
+  const buildId = isProd ? 'prod' : nanoid()
+  const engineMode = isProd ? 'provisioned' : 'serverless'
 
   // creates db and wait for it to be available
-  const connectionValues = await getConnectionValues(buildId)
+  const connectionValues = await getConnectionValues(buildId, {
+    engineMode,
+    engine: `aurora-${engine}`
+  })
 
   const CWD = process.cwd()
   const envFilePath = path.join(CWD, '.env')
@@ -63,5 +66,12 @@ const init = async () => {
 
   return env
 }
+
+init.help = `
+  nawr init 
+
+  Options:
+    --engine (postgresql|mysql) [default:postgresql] 
+`
 
 module.exports = init

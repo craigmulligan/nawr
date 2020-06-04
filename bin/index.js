@@ -8,13 +8,31 @@ const cmds = {
   migrate
 }
 
+const fail = err => {
+  console.log(err)
+  process.exit(1)
+}
+
 const argv = yargs(process.argv.slice(2), {
   configuration: { 'parse-numbers': false }
 })
+const isHelp = argv.help || argv.h
+const help = `
+nawr [command]
+
+  init - Creates a new serverless db
+  migrate - Handles migration tasks
+`
 
 ;(async cmd => {
   if (cmd === 'init') {
-    await init(argv)
+    if (isHelp) {
+      process.stdout.write(init.help)
+      process.exit(0)
+      return
+    }
+
+    await init(argv).catch(fail)
     process.exit(0)
     return
   }
@@ -22,19 +40,18 @@ const argv = yargs(process.argv.slice(2), {
   if (cmd === 'migrate') {
     // removes cmd from arr
     argv._.shift()
-    await migrate(argv)
+    if (isHelp) {
+      process.stdout.write(migrate.help)
+      process.exit(0)
+      return
+    }
+
+    await migrate(argv).catch(fail)
     process.exit(0)
     return
   }
 
-  process.stdout.write(
-    [
-      'Use: nawr [command]',
-      '',
-      'Where [command] is one of:',
-      '  init                   creates a new serverless db',
-      '  migrate                handles migration tasks'
-    ].join('\n')
-  )
+  // got here always print help
+  process.stdout.write(init.help)
   process.exit(1)
 })(argv._[0])

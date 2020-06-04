@@ -2,6 +2,22 @@ const AWS = require('aws-sdk')
 const nanoid = require('./id')
 const { promisify } = require('util')
 
+const ensureEnv = (required, optional) => {
+  for (key of required) {
+    if (!process.env[key]) {
+      throw new Error(`[Error]: ${key} is not set`)
+    }
+  }
+
+  for (key of optional) {
+    if (!process.env[key]) {
+      console.log(`[warning]: ${key} is not set`)
+    }
+  }
+}
+
+ensureEnv(['NAWR_AWS_KEY_ID', 'NAWR_AWS_SECRET'], ['NAWR_AWS_REGION'])
+
 const {
   NAWR_AWS_KEY_ID: accessKeyId,
   NAWR_AWS_SECRET: secretAccessKey,
@@ -82,7 +98,8 @@ async function waitOnAvailable(dbArn) {
 
 // Creates a serverless postgres db + sercret for acess via the data-api
 // * @param {string} deploymentId - vercel deploymentId
-async function createDB(identifier) {
+async function createDB(identifier, { opts }) {
+  console.log({ identifier })
   const username = 'master'
   const dbName = 'master'
   const password = process.env.NAWR_SQL_PASSWORD || nanoid()
@@ -91,6 +108,7 @@ async function createDB(identifier) {
   let secret
 
   try {
+    // TODO add tags
     db = await createDBCluster({
       DatabaseName: dbName,
       EngineMode: 'serverless',
@@ -104,7 +122,8 @@ async function createDB(identifier) {
         MaxCapacity: 4,
         MinCapacity: 2,
         SecondsUntilAutoPause: 300
-      }
+      },
+      ...opts
     }).then(data => data.DBCluster)
   } catch (err) {
     if (err.code === 'DBClusterAlreadyExistsFault') {

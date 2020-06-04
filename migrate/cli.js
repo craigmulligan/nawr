@@ -1,27 +1,27 @@
 const yargs = require('yargs-parser')
 const table = require('borderless-table')
 
-module.exports = function(umzug, opts) {
+const help = [
+  'nawr migrate [command]',
+  '',
+  'commands:',
+  '  up                     migrates everything up',
+  '  down                   migrates 1 migration down',
+  '  up [file-to-migrate]   migrates a specific file up',
+  '  down [file-to-migrate] migrates a specific file down',
+  '  execute [direction] [files-to-migrate] migrates a specific file',
+  '  pending                shows all pending migrations',
+  '  history                shows the migration history',
+  ''
+].join('\n')
+
+const migrate = function(umzug, opts) {
   const stdout = process.stdout
   let api = createApi(stdout, umzug)
   let apiMethods = Object.keys(api)
   let command = opts._.splice(0, 1)[0]
   if (!apiMethods.includes(command)) {
-    stdout.write(
-      [
-        'Use: nawr migrate [command]',
-        '',
-        'Where [command] is one of:',
-        '  up                     migrates everything up',
-        '  down                   migrates 1 migration down',
-        '  up [file-to-migrate]   migrates a specific file up',
-        '  down [file-to-migrate] migrates a specific file down',
-        '  execute [direction] [files-to-migrate] migrates a specific file',
-        '  pending                shows all pending migrations',
-        '  history                shows the migration history',
-        ''
-      ].join('\n')
-    )
+    stdout.write(help)
     process.exit(1)
   } else {
     if (command === 'up' || command === 'down') {
@@ -45,26 +45,11 @@ module.exports = function(umzug, opts) {
 function createApi(stdout, umzug) {
   return {
     history: function() {
-      if (typeof umzug.storage.history === 'function') {
-        return umzug.storage.history().then(function(events) {
-          if (!events.length) stdout.write('No executed migrations\n')
-          let lines = events.map(function(e) {
-            let time = new Date(e.time).toLocaleTimeString('en-us', {
-              year: 'numeric',
-              month: 'numeric',
-              day: 'numeric'
-            })
-            return Object.assign(e, { time: time })
-          })
-          table(lines, ['time', 'type', 'name', 'user', 'host'], null, stdout)
-        })
-      } else {
-        return umzug.storage.executed().then(function(migrations) {
-          migrations = migrations.map(mig => ({ file: mig }))
-          if (!migrations.length) stdout.write('No executed migrations\n')
-          else table(migrations, ['file'], ['Executed migrations'], stdout)
-        })
-      }
+      return umzug.storage.executed().then(function(migrations) {
+        migrations = migrations.map(mig => ({ file: mig }))
+        if (!migrations.length) stdout.write('No executed migrations\n')
+        else table(migrations, ['file'], ['Executed migrations'], stdout)
+      })
     },
     pending: function() {
       return umzug.pending().then(function(migrations) {
@@ -133,3 +118,6 @@ function createDebug(stdout) {
     }
   }
 }
+
+migrate.help = help
+module.exports = migrate
