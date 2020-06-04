@@ -1,10 +1,10 @@
 {
   "name": "nawr",
-  "version": "0.1.0-beta-0.2",
+  "version": "0.1.0-beta-0.4",
   "description": "on-demand serverless sql dbs",
-  "main": "lib/init.js",
+  "main": "init.js",
   "bin": {
-    "nawr": "lib/bin/index.js"
+    "nawr": "bin/index.js"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
