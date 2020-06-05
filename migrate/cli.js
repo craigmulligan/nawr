@@ -1,19 +1,5 @@
 const log = require('loglevel')
 
-const help = [
-  'nawr migrate [command]',
-  '',
-  'commands:',
-  '  up                     migrates everything up',
-  '  down                   migrates 1 migration down',
-  '  up [file-to-migrate]   migrates a specific file up',
-  '  down [file-to-migrate] migrates a specific file down',
-  '  execute [direction] [files-to-migrate] migrates a specific file',
-  '  pending                shows all pending migrations',
-  '  history                shows the migration history',
-  ''
-].join('\n')
-
 const table = (migrations, prefix) => {
   return migrations
     .map(({ file }) => {
@@ -22,70 +8,74 @@ const table = (migrations, prefix) => {
     .join('\n')
 }
 
-const migrate = function(umzug, opts) {
-  let api = createApi(umzug)
-  let apiMethods = Object.keys(api)
-  let command = opts._.splice(0, 1)[0]
-  if (!apiMethods.includes(command)) {
-    log.info(help)
-    process.exit(1)
-  } else {
-    if (command === 'up' || command === 'down') {
-      if (opts.from || opts.to) opts = { from: opts.from, to: opts.to }
-      else if (!opts._.length) opts = undefined
-      else opts = opts._
-    } else if (command === 'execute') {
-      let direction = opts._.slice(0, 1)[0]
-      let migrations = opts._.slice(1)
-      if (direction !== 'up' && direction !== 'down') {
-        throw new Error('Direction must be up or down.')
-      }
-      opts = { method: direction, migrations: migrations }
-    }
-    return api[command](opts)
-  }
+function execute(umzug, type, opts) {
+  let res = umzug[type](opts)
 
-  return api
+  return res.then(function(migrations) {
+    if (!migrations || !migrations.length) {
+      return log.info('No migrations executed\n')
+    } else {
+      log.info(`Executed '${type}' of ${migrations.length} migrations`)
+    }
+  })
 }
 
-function createApi(umzug) {
-  return {
-    history: function() {
-      return umzug.storage.executed().then(function(migrations) {
+execute.options = {
+  from: {
+    type: 'string',
+    describe: 'target start migration'
+  },
+  to: {
+    type: 'string',
+    describe: 'target end migration'
+  }
+}
+
+const api = {
+  history: {
+    command: 'history',
+    describe: 'View migration history',
+    handler: ({ migrator }) => {
+      return migrator.storage.executed().then(function(migrations) {
         migrations = migrations.map(mig => ({ file: mig }))
         if (!migrations.length) log.info('No executed migrations\n')
         else {
           log.info(table(migrations, `✔ executed`))
         }
       })
-    },
-    pending: function() {
-      return umzug.pending().then(function(migrations) {
+    }
+  },
+  pending: {
+    command: 'pending',
+    describe: 'View pending migrations',
+    handler: function({ migrator }) {
+      return migrator.pending().then(function(migrations) {
         if (!migrations.length) log.info('No pending migrations\n')
         else {
           log.info(table(migrations, `⚠ pending`))
         }
       })
+    }
+  },
+  up: {
+    command: 'up',
+    describe: 'migrate up',
+    builder: execute.options,
+    handler: function({ migrator, from, to }) {
+      execute(migrator, 'up', { from, to })
+    }
+  },
+  down: {
+    command: 'down',
+    describe: 'migrate down',
+    handler: function({ migrator, from, to }) {
+      execute(migrator, 'down', { from, to })
     },
-    up: updown(umzug, 'up'),
-    down: updown(umzug, 'down'),
-    execute: updown(umzug, 'execute')
+    builder: execute.options
   }
+  // TODO add execute for specific migrations
 }
 
-function updown(umzug, type) {
-  return function(opts) {
-    let res = umzug[type](opts)
-
-    return res.then(function(migrations) {
-      if (!migrations || !migrations.length) {
-        return log.info('No migrations executed\n')
-      } else {
-        log.info(`Executed '${type}' of ${migrations.length} migrations`)
-      }
-    })
-  }
+module.exports = {
+  api
 }
-
-migrate.help = help
-module.exports = migrate

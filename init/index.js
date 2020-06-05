@@ -90,11 +90,15 @@ const init = async ({ engine }) => {
   return env
 }
 
-init.help = `
-  nawr init 
-
-  Options:
-    --engine (postgresql|mysql) [default:postgresql] 
-`
-
-module.exports = init
+// cli module
+exports.command = 'init'
+exports.describe = 'initialize sql db'
+exports.builder = {
+  engine: {
+    alias: 'e',
+    description: 'set storage engine',
+    default: 'postgresql',
+    choices: ['postgresql', 'mysql']
+  }
+}
+exports.handler = init
