@@ -54,19 +54,16 @@ async function waitOnAvailable(dbArn) {
   let status = null
 
   while (status !== 'available') {
-    console.log('checking availablility')
     status = await getDBStatus(dbArn)
     await sleep(5000)
   }
 
-  console.log('DB is ready')
   return status
 }
 
 // Creates a serverless postgres db + sercret for acess via the data-api
 // * @param {string} deploymentId - vercel deploymentId
 async function createDB(identifier, { opts }) {
-  console.log({ identifier })
   const username = 'master'
   const dbName = 'master'
   const password = process.env.NAWR_SQL_PASSWORD || nanoid()
@@ -119,7 +116,7 @@ async function createDB(identifier, { opts }) {
       try {
         secret = await getSecret({
           SecretId: identifier
-        }).catch(console.log)
+        })
       } catch (err) {
         if (!sercret) {
           throw new Error(`[Could not find DBCluster secret]: ${err.message}`)

@@ -2,6 +2,8 @@ require('dotenv').config()
 const Storage = require('./storage')
 const cli = require('./cli')
 const Umzug = require('umzug')
+const ora = require('ora')
+const spinner = ora()
 
 const migrate = argv => {
   // because the client relies on `process.env.NAWR_SQL_CONNECTION`
@@ -12,6 +14,13 @@ const migrate = argv => {
     migrations: {
       params: [client],
       path: process.cwd() + '/migrations'
+    },
+    logging: message => {
+      if (spinner.isSpinning) {
+        spinner.stopAndPersist({ text: message, symbol: '✔' })
+      } else {
+        spinner.start(message)
+      }
     }
   })
 

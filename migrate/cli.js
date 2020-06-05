@@ -1,5 +1,4 @@
-const yargs = require('yargs-parser')
-const table = require('borderless-table')
+const log = require('log-level')
 
 const help = [
   'nawr migrate [command]',
@@ -15,13 +14,20 @@ const help = [
   ''
 ].join('\n')
 
+const table = (migrations, prefix) => {
+  return migrations
+    .map(({ file }) => {
+      return `${prefix}: ${file}`
+    })
+    .join('\n')
+}
+
 const migrate = function(umzug, opts) {
-  const stdout = process.stdout
-  let api = createApi(stdout, umzug)
+  let api = createApi(umzug)
   let apiMethods = Object.keys(api)
   let command = opts._.splice(0, 1)[0]
   if (!apiMethods.includes(command)) {
-    stdout.write(help)
+    log.info(help)
     process.exit(1)
   } else {
     if (command === 'up' || command === 'down') {
@@ -42,80 +48,42 @@ const migrate = function(umzug, opts) {
   return api
 }
 
-function createApi(stdout, umzug) {
+function createApi(umzug) {
   return {
     history: function() {
       return umzug.storage.executed().then(function(migrations) {
         migrations = migrations.map(mig => ({ file: mig }))
-        if (!migrations.length) stdout.write('No executed migrations\n')
-        else table(migrations, ['file'], ['Executed migrations'], stdout)
+        if (!migrations.length) log.info('No executed migrations\n')
+        else {
+          log.info(table(migrations, `✔ executed`))
+        }
       })
     },
     pending: function() {
       return umzug.pending().then(function(migrations) {
-        if (!migrations.length) stdout.write('No pending migrations\n')
-        else table(migrations, ['file'], ['Pending migrations'], stdout)
+        if (!migrations.length) log.info('No pending migrations\n')
+        else {
+          log.info(table(migrations, `⚠ pending`))
+        }
       })
     },
-    up: updown(stdout, umzug, 'up'),
-    down: updown(stdout, umzug, 'down'),
-    execute: updown(stdout, umzug, 'execute')
+    up: updown(umzug, 'up'),
+    down: updown(umzug, 'down'),
+    execute: updown(umzug, 'execute')
   }
 }
 
-function updown(stdout, umzug, type) {
-  let debug = createDebug(stdout)
+function updown(umzug, type) {
   return function(opts) {
-    let progress, seconds
-
-    if (umzug.options.debug) {
-      umzug
-        .on('migrating', debug('migrate'))
-        .on('migrated', debug('migrated'))
-        .on('reverting', debug('revert'))
-        .on('reverted', debug('reverted'))
-        .on('debug', debug('debug'))
-    } else {
-      seconds = 0
-      progress = setInterval(function() {
-        seconds += 1
-        stdout.write('.')
-      }, 1000)
-    }
-
     let res = umzug[type](opts)
 
-    if (!umzug.options.debug) {
-      res.then(function() {
-        clearInterval(progress)
-        if (seconds) stdout.write('\n') // we want a newline as soon as something gets logged.
-      })
-    }
-
-    return res
-      .then(function(migrations) {
-        if (!migrations || !migrations.length)
-          return stdout.write('No migrations executed\n')
-        table(
-          migrations,
-          ['file'],
-          [`Executed '${type}' of ${migrations.length} migrations`],
-          stdout
-        )
-      })
-      .catch(err => {
-        debug('ERROR')(err)
-        process.exit(1)
-      })
-  }
-}
-
-function createDebug(stdout) {
-  return function debug(type) {
-    return function(message) {
-      if (message) stdout.write(`${type}: ${message}\n`)
-      else stdout.write(`${type}\n`)
-    }
+    return res.then(function(migrations) {
+      if (!migrations || !migrations.length) {
+        return log.info('No migrations executed\n')
+      } else {
+        log.info(`Executed '${type}' of ${migrations.length} migrations`)
+      }
+    })
   }
 }
 

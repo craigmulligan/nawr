@@ -3,13 +3,14 @@ require('dotenv').config()
 const yargs = require('yargs-parser')
 const init = require('../init')
 const migrate = require('../migrate')
+const log = require('log-level')
 const cmds = {
   init,
   migrate
 }
 
 const fail = err => {
-  console.log(err)
+  log.error(err)
   process.exit(1)
 }
 

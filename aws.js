@@ -1,15 +1,16 @@
 const AWS = require('aws-sdk')
+const log = require('log-level')
 
 const ensureEnv = (required, optional) => {
   for (key of required) {
     if (!process.env[key]) {
-      throw new Error(`[Error]: ${key} is not set`)
+      throw new Error(`${key} is not set`)
     }
   }
 
   for (key of optional) {
     if (!process.env[key]) {
-      console.log(`[warning]: ${key} is not set`)
+      log.warn(`${key} is not set`)
     }
   }
 }
