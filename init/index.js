@@ -1,6 +1,6 @@
 const envfile = require('envfile')
 const fs = require('fs').promises
-const { createDB, waitOnAvailable } = require('./aws')
+const { createDB, waitOnAvailable } = require('../aws')
 const path = require('path')
 const nanoid = require('./id')
 
