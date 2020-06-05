@@ -23,7 +23,7 @@ const getConnectionValues = async (buildId, opts) => {
     throw err
   }
 
-  spinner.start('Waiting on database to be availablility')
+  spinner.start('Waiting on database to be available')
   try {
     await waitOnAvailable(connectionValues.resourceArn)
     spinner.succeed(`Database is available`)

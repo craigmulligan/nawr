@@ -15,7 +15,7 @@ const ensureEnv = (required, optional) => {
   }
 }
 
-ensureEnv(['NAWR_AWS_KEY_ID', 'NAWR_AWS_SECRET'], ['NAWR_AWS_REGION'])
+ensureEnv(['NAWR_AWS_KEY_ID', 'NAWR_AWS_SECRET', 'NAWR_AWS_REGION'])
 
 const {
   NAWR_AWS_KEY_ID: accessKeyId,
