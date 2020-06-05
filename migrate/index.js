@@ -1,11 +1,11 @@
 require('dotenv').config()
 const Storage = require('./storage')
-const cli = require('./cli')
 const Umzug = require('umzug')
 const ora = require('ora')
 const spinner = ora()
+const { api } = require('./cli')
 
-const migrate = argv => {
+const middleware = argv => {
   // because the client relies on `process.env.NAWR_SQL_CONNECTION`
   // you have to lazy load it so that users can run nawr init first (which populates ^)
   const client = require('../client')
@@ -24,8 +24,17 @@ const migrate = argv => {
     }
   })
 
-  return cli(migrator, argv)
+  return { migrator }
 }
 
-migrate.help = cli.help
-module.exports = migrate
+// cli module
+exports.command = 'migrate <command>'
+exports.describe = 'run migration tasks'
+exports.builder = yargs => {
+  // register subcomands
+  for (key in api) {
+    yargs.command(api[key])
+  }
+
+  yargs.middleware(middleware)
+}
