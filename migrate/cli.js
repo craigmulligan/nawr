@@ -1,4 +1,4 @@
-const log = require('log-level')
+const log = require('loglevel')
 
 const help = [
   'nawr migrate [command]',

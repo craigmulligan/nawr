@@ -1,9 +1,13 @@
 #!/usr/bin/env node
 require('dotenv').config()
+const log = require('loglevel')
 const yargs = require('yargs-parser')
 const init = require('../init')
 const migrate = require('../migrate')
-const log = require('log-level')
+
+// TODO make this configureable
+log.setLevel('info')
+
 const cmds = {
   init,
   migrate

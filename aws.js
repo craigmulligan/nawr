@@ -1,5 +1,5 @@
 const AWS = require('aws-sdk')
-const log = require('log-level')
+const log = require('loglevel')
 
 const ensureEnv = (required, optional) => {
   for (key of required) {

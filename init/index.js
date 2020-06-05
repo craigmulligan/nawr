@@ -1,9 +1,10 @@
 const envfile = require('envfile')
 const fs = require('fs').promises
-const { createDB, waitOnAvailable } = require('../aws')
+const { createDB, waitOnAvailable } = require('./aws-utils')
 const path = require('path')
 const nanoid = require('./id')
 const ora = require('ora')
+const log = require('loglevel')
 
 const getConnectionValues = async (buildId, opts) => {
   if (process.env.NAWR_SQL_CONNECTION) {
@@ -12,18 +13,20 @@ const getConnectionValues = async (buildId, opts) => {
   }
 
   const spinner = ora('Creating Database').start()
+  let connectionValues
+
   try {
-    const connectionValues = await createDB(buildId, opts)
+    connectionValues = await createDB(buildId, opts)
     spinner.succeed(`Database created: ${connectionValues.resourceArn}`)
   } catch (err) {
-    ora.fail(`Failed to create database: ${err.message}`)
+    spinner.fail(`Failed to create database: ${err.message}`)
     throw err
   }
 
   spinner.start('Waiting on database to be availablility')
   try {
     await waitOnAvailable(connectionValues.resourceArn)
-    spinner.succeed(`Database is available: ${err.message}`)
+    spinner.succeed(`Database is available`)
   } catch (err) {
     spinner.fail(
       `Failed while waiting for database to be available: ${err.message}`
@@ -79,6 +82,7 @@ const init = async ({ engine }) => {
       ...env,
       NAWR_SQL_CONNECTION: JSON.stringify(connectionValues)
     })
+    log.info('Connection values saved to .env')
   } catch (err) {
     throw new Error('Could not save connection details in .env')
   }
