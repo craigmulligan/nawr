@@ -60,7 +60,7 @@ const init = async ({ engine, prefix }) => {
     engine = 'postgresql'
   }
 
-  const isProd = process.env.NAWR_SQL_IS_PROD
+  const isProd = process.env.NAWR_IS_PROD
   let buildId = isProd ? 'prod' : nanoid()
 
   if (prefix) {

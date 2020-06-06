@@ -111,5 +111,5 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 | NAWR_AWS_KEY_ID      | true     |
 | NAWR_AWS_SECRET      | true     |
 | NAWR_AWS_REGION      | false    |
-| NAWR_SQL_IS_PROD     | false    |
+| NAWR_IS_PROD         | false    |
 ```
