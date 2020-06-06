@@ -8,7 +8,7 @@ const log = require('loglevel')
 
 const getConnectionValues = async (buildId, opts) => {
   if (process.env.NAWR_SQL_CONNECTION) {
-    console.warn('connection details exist ignoring')
+    log.warn('connection details exist ignoring')
     return JSON.parse(process.env.NAWR_SQL_CONNECTION)
   }
 

@@ -8,28 +8,37 @@ const table = (migrations, prefix) => {
     .join('\n')
 }
 
-function execute(umzug, type, opts) {
-  console.log(umzug.down)
-  let res = umzug[type](opts)
+const execute = (umzug, type, opts) => {
+  const res = umzug[type](opts)
 
-  return res.then(function(migrations) {
+  return res.then(migrations => {
     if (!migrations || !migrations.length) {
-      return log.info('No migrations executed\n')
+      log.info('No migrations executed\n')
     } else {
       log.info(`Executed '${type}' of ${migrations.length} migrations`)
     }
+
+    return migrations
   })
 }
 
-execute.options = {
-  from: {
+const commit = transaction => {
+  return migrations => {
+    return transaction.commit()
+  }
+}
+
+execute.options = yargs => {
+  yargs.option('from', {
     type: 'string',
     describe: 'target start migration'
-  },
-  to: {
+  })
+
+  yargs.option('to', {
     type: 'string',
     describe: 'target end migration'
-  }
+  })
+  return yargs
 }
 
 const api = {
@@ -62,16 +71,15 @@ const api = {
     command: 'up',
     describe: 'migrate up',
     builder: execute.options,
-    handler: function({ migrator, from, to }) {
-      execute(migrator, 'up', { from, to })
+    handler: function({ migrator, from, to, transaction }) {
+      return execute(migrator, 'up', { from, to }).then(commit(transaction))
     }
   },
   down: {
     command: 'down',
     describe: 'migrate down',
-    handler: function({ migrator, from, to }) {
-      console.log('whaaa')
-      execute(migrator, 'down', { from, to })
+    handler: function({ migrator, from, to, transaction }) {
+      return execute(migrator, 'down', { from, to }).then(commit(transaction))
     },
     builder: execute.options
   }

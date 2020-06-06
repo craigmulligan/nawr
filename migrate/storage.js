@@ -1,7 +1,7 @@
 const { once } = require('lodash')
 
-const createMigrationTable = once(async client => {
-  return client.query(`
+const createMigrationTable = once(async transaction => {
+  return transaction.query(`
       create table if not exists migration (
         name text primary key,
         date timestamptz not null default now()
@@ -10,21 +10,25 @@ const createMigrationTable = once(async client => {
 })
 
 class Storage {
-  constructor(client) {
+  constructor({ transaction, client }) {
+    this.transaction = transaction
     this.client = client
   }
   async logMigration(name) {
     try {
       await createMigrationTable(this.client)
-      return this.client.query('INSERT INTO migration (name) VALUES(:name);', {
-        name
-      })
+      return this.transaction.query(
+        'INSERT INTO migration (name) VALUES(:name);',
+        {
+          name
+        }
+      )
     } catch (err) {
       throw err
     }
   }
   async unlogMigration(name) {
-    return this.client.query('DELETE FROM migration WHERE name = :name;', {
+    return this.transaction.query('DELETE FROM migration WHERE name = :name;', {
       name
     })
   }
