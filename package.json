@@ -1,6 +1,6 @@
 {
   "name": "nawr",
-  "version": "0.1.0-beta-0.9",
+  "version": "0.1.0-beta-0.10",
   "description": "on-demand serverless sql dbs",
   "main": "init.js",
   "bin": {
