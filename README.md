@@ -10,7 +10,7 @@ It pairs nicely with platforms like vercel and frameworks like next.js, but it s
 
 ### Features
 
-- Automatically create preview databases for every deploy.
+- Automatically create preview database for every deploy.
 - Automatically create provisioned database for production deploys.
 - Uses the [RDS http api](https://github.com/jeremydaly/data-api-client), which handles connection pooling and is optimized for serverless usecases.
 - Offers built in migrations which run as transactions so you are never left in a funky state on failed deploys.
