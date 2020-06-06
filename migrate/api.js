@@ -1,30 +1,36 @@
 const log = require('loglevel')
+const ora = require('ora')
 
 const table = (migrations, prefix) => {
   return migrations
     .map(({ file }) => {
-      return `${prefix}: ${file}`
+      return `${prefix} ${file}`
     })
     .join('\n')
 }
 
 const execute = (umzug, type, opts) => {
-  const res = umzug[type](opts)
-
-  return res.then(migrations => {
-    if (!migrations || !migrations.length) {
-      log.info('No migrations executed\n')
-    } else {
-      log.info(`Executed '${type}' of ${migrations.length} migrations`)
-    }
-
-    return migrations
-  })
+  return umzug[type](opts)
 }
 
 const commit = transaction => {
-  return migrations => {
-    return transaction.commit()
+  return async migrations => {
+    if (!migrations || !migrations.length) {
+      log.info('No migrations executed\n')
+    }
+
+    const spinner = ora()
+    try {
+      spinner.start(`Commiting ${migrations.length} migrations`)
+      const result = await transaction.commit()
+      spinner.succeed(`Commited ${migrations.length} migrations`)
+      log.info(table(migrations, '✔'))
+    } catch (err) {
+      spinner.succeed(`Failed to commit ${migrations.length} migrations`)
+      log.info(table(migrations, '✖'))
+      throw err
+    }
+    return migrations
   }
 }
 
@@ -50,7 +56,7 @@ const api = {
         migrations = migrations.map(mig => ({ file: mig }))
         if (!migrations.length) log.info('No executed migrations\n')
         else {
-          log.info(table(migrations, `✔ executed`))
+          log.info(table(migrations, `✔ executed:`))
         }
       })
     }
@@ -62,7 +68,7 @@ const api = {
       return migrator.pending().then(function(migrations) {
         if (!migrations.length) log.info('No pending migrations\n')
         else {
-          log.info(table(migrations, `⚠ pending`))
+          log.info(table(migrations, `⚠ pending:`))
         }
       })
     }
