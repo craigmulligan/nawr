@@ -55,13 +55,18 @@ const setEnv = async (envFilePath, env) => {
   await fs.writeFile(envFilePath, envStr)
 }
 
-const init = async ({ engine }) => {
+const init = async ({ engine, prefix }) => {
   if (!engine) {
     engine = 'postgresql'
   }
 
   const isProd = process.env.NAWR_SQL_IS_PROD
-  const buildId = isProd ? 'prod' : nanoid()
+  let buildId = isProd ? 'prod' : nanoid()
+
+  if (prefix) {
+    buildId = `${prefix}-${buildId}`
+  }
+
   const engineMode = isProd ? 'provisioned' : 'serverless'
 
   // creates db and wait for it to be available
@@ -99,6 +104,11 @@ exports.builder = {
     description: 'set storage engine',
     default: 'postgresql',
     choices: ['postgresql', 'mysql']
+  },
+  prefix: {
+    alias: 'p',
+    description: 'Add a prefix to db Ids',
+    type: 'string'
   }
 }
 exports.handler = init
