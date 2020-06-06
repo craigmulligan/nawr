@@ -107,8 +107,7 @@ exports.builder = {
   },
   prefix: {
     alias: 'p',
-    description: 'Add a prefix to db Ids',
-    type: 'string'
+    description: 'Add a prefix to db Ids'
   }
 }
 exports.handler = init

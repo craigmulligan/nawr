@@ -9,12 +9,17 @@ const middleware = argv => {
   // because the client relies on `process.env.NAWR_SQL_CONNECTION`
   // you have to lazy load it so that users can run nawr init first (which populates ^)
   const client = require('../client')
+
   const migrator = new Umzug({
     storage: new Storage(client),
     migrations: {
       params: [client],
       path: process.cwd() + '/migrations'
     },
+    // wrap: fn => {
+    // console.log(fn)
+    // return fn
+    // },
     logging: message => {
       if (spinner.isSpinning) {
         spinner.stopAndPersist({ text: message, symbol: '✔' })

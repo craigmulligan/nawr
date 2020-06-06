@@ -9,6 +9,7 @@ const table = (migrations, prefix) => {
 }
 
 function execute(umzug, type, opts) {
+  console.log(umzug.down)
   let res = umzug[type](opts)
 
   return res.then(function(migrations) {
@@ -69,11 +70,11 @@ const api = {
     command: 'down',
     describe: 'migrate down',
     handler: function({ migrator, from, to }) {
+      console.log('whaaa')
       execute(migrator, 'down', { from, to })
     },
     builder: execute.options
   }
-  // TODO add execute for specific migrations
 }
 
 module.exports = {
