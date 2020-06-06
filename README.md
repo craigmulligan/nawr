@@ -2,10 +2,11 @@
 
 > Serverless RDS dbs on demand.
 
-I wanted an easy way to spin up a sql database for every one of my [vercel](https://vercel.com) deploys. I found that amazons RDS offers a `serverless` mode,
-which means you are only charged for the time that the database is "active".
+I wanted an easy way to spin up a sql database for every one of my [vercel](https://vercel.com) deploys. I found that amazons RDS offers a `serverless` mode, which means you are only charged for the time that the database is "active".
 
-So I've built nawr a set of tools that simplifies the management and use of serverless sql databases.
+So I've built `nawr` a tool that simplifies the management and use of serverless sql databases.
+
+It pairs nicely with platforms like vercel and frameworks like next.js, but it should work with any serverless framework.
 
 ### Features
 
@@ -13,8 +14,6 @@ So I've built nawr a set of tools that simplifies the management and use of serv
 - Automatically create provisioned database for production deploys.
 - Uses the [RDS http api](https://github.com/jeremydaly/data-api-client), which handles connection pooling and is optimized for serverless usecases.
 - Offers built in migrations which run as transactions so you are never left in a funky state on failed deploys.
-
-It pairs nicely with platforms like vercel and frameworks like next.js, but it should work with any serverless framework.
 
 ### Installation
 
@@ -24,12 +23,16 @@ npm install nawr
 
 ### Usage
 
-You can follow the diff'd example below or just clone the [example](https://github.com/hobochild/boiler):
+This illustrates how to use nawr with next.js & vercel.
+
+You can follow the diff'd example below or just clone the [example](https://github.com/hobochild/nawr-example):
 
 First, update your package.json scripts to run nawr during your build step.
 
 ```diff
 // package.json
+- "dev": "next dev",
++ "dev": "nawr init && nawr migrate up && next dev",
 - "build": "next build",
 + "build": "nawr init && nawr migrate up && next build",
 ```
@@ -61,7 +64,7 @@ module.exports = {
 }
 ```
 
-Add a front page to query your database:
+Add a Home page which queries your database:
 
 ```js
 // pages/index.js
@@ -93,9 +96,14 @@ export const getServerSideProps = async () => {
 export default Home
 ```
 
-Then set the required variables this can be in your `.env` or via the vercel dashboard:
+#### Required Environment Variables
 
-// TODO add minimium required IAM permissions.
+Then set the required variables this can be in your `.env` and/or via the vercel dashboard:
+
+You can use your root AWS user keys but It's best practice to create a new [AWS IAM credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_api) it'll need the following policies:
+
+- AmazonRDSFullAccess
+- AmazonRDSDataFullAccess
 
 ```
 | Environment Variable | Required |

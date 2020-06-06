@@ -62,11 +62,10 @@ async function waitOnAvailable(dbArn) {
 }
 
 // Creates a serverless postgres db + sercret for acess via the data-api
-// * @param {string} deploymentId - vercel deploymentId
 async function createDB(identifier, { opts }) {
   const username = 'master'
   const dbName = 'master'
-  const password = process.env.NAWR_SQL_PASSWORD || nanoid()
+  const password = nanoid()
 
   let db
   let secret
