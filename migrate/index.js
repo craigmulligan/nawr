@@ -6,6 +6,9 @@ const { api } = require('./api')
 const middleware = argv => {
   // because the client relies on `process.env.NAWR_SQL_CONNECTION`
   // you have to lazy load it so that users can run nawr init first (which populates ^)
+  if (!argv) {
+    argv = {}
+  }
   const client = require('../client')
   // init a transaction
   const transaction = client.transaction()
@@ -19,7 +22,11 @@ const middleware = argv => {
     logging: false
   })
 
-  return { migrator, transaction }
+  argv.migrator = migrator
+  argv.transaction = transaction
+  argv.client = client
+
+  return argv
 }
 
 // cli module
