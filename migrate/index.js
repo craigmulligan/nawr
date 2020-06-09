@@ -33,3 +33,4 @@ exports.builder = yargs => {
 
   yargs.middleware(middleware)
 }
+exports.middleware = middleware
