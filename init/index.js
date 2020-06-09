@@ -6,10 +6,26 @@ const nanoid = require('./id')
 const ora = require('ora')
 const log = require('loglevel')
 
-const getConnectionValues = async (buildId, opts) => {
+// https://github.com/koxudaxi/local-data-api
+const LOCAL_CONNECTIONS = {
+  resourceArn: 'arn:aws:rds:us-east-1:123456789012:cluster:dummy',
+  secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:dummy',
+  database: 'master',
+  isLocal: true,
+  options: {
+    endpoint: 'http://127.0.0.7:8080'
+  }
+}
+
+const getConnectionValues = async (buildId, opts, isLocal) => {
   if (process.env.NAWR_SQL_CONNECTION) {
     log.debug('connection details exist.')
     return JSON.parse(process.env.NAWR_SQL_CONNECTION)
+  }
+
+  console.log({ isLocal })
+  if (isLocal) {
+    return LOCAL_CONNECTIONS
   }
 
   const spinner = ora('Creating Database').start()
@@ -35,7 +51,10 @@ const getConnectionValues = async (buildId, opts) => {
   }
 
   spinner.clear()
-  return connectionValues
+  return {
+    ...connectionValues,
+    isLocal
+  }
 }
 
 const getEnv = async envFilePath => {
@@ -55,7 +74,7 @@ const setEnv = async (envFilePath, env) => {
   await fs.writeFile(envFilePath, envStr)
 }
 
-const init = async ({ engine, prefix }) => {
+const init = async ({ engine, prefix, local }) => {
   if (!engine) {
     engine = 'postgresql'
   }
@@ -70,10 +89,14 @@ const init = async ({ engine, prefix }) => {
   const engineMode = isProd ? 'provisioned' : 'serverless'
 
   // creates db and wait for it to be available
-  const connectionValues = await getConnectionValues(buildId, {
-    engineMode,
-    engine: `aurora-${engine}`
-  })
+  const connectionValues = await getConnectionValues(
+    buildId,
+    {
+      engineMode,
+      engine: `aurora-${engine}`
+    },
+    local
+  )
 
   const CWD = process.cwd()
   const envFilePath = path.join(CWD, '.env')
@@ -108,6 +131,10 @@ exports.builder = {
   prefix: {
     alias: 'p',
     description: 'Add a prefix to db Ids'
+  },
+  local: {
+    description: 'Run a local db instance',
+    type: 'boolean'
   }
 }
 exports.handler = init

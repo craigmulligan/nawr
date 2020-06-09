@@ -9,15 +9,14 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "browser": {
+    "./client.js": "./noop.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": [
-    "serverless",
-    "next.js",
-    "sql"
-  ],
+  "keywords": ["serverless", "next.js", "sql"],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
@@ -25,6 +24,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.680.0",
+    "better-sqlite3": "^7.0.1",
     "data-api-client": "^1.0.1",
     "dotenv": "^8.2.0",
     "envfile": "^5.2.0",
