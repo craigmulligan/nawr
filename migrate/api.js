@@ -17,6 +17,9 @@ const commit = transaction => {
   return async migrations => {
     if (!migrations || !migrations.length) {
       log.info('No migrations executed\n')
+      // its important to return early and not call
+      // commit see:  https://github.com/koxudaxi/local-data-api/issues/41
+      return
     }
 
     const spinner = ora()

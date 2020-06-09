@@ -10,7 +10,7 @@ if (!process.env.NAWR_SQL_CONNECTION) {
 }
 const connectionValue = JSON.parse(process.env.NAWR_SQL_CONNECTION)
 const { secretArn, resourceArn, database, options } = connectionValue
-const agent = new http.Agent()
+const isLocal = options && options.isLocal
 const {
   NAWR_AWS_KEY_ID: accessKeyId,
   NAWR_AWS_SECRET: secretAccessKey,
@@ -28,7 +28,7 @@ const client = dataApi({
   options: {
     ...options,
     httpOptions: {
-      agent: agent
+      agent: isLocal && new Agent()
     },
     accessKeyId,
     secretAccessKey

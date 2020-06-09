@@ -1,10 +1,11 @@
 const envfile = require('envfile')
 const fs = require('fs').promises
-const { createDB, waitOnAvailable } = require('./aws-utils')
 const path = require('path')
-const nanoid = require('./id')
 const ora = require('ora')
 const log = require('loglevel')
+const { createDB, waitOnAvailable } = require('./aws-utils')
+const local = require('./local')
+const nanoid = require('./id')
 
 // https://github.com/koxudaxi/local-data-api
 const LOCAL_CONNECTIONS = {
@@ -18,14 +19,14 @@ const LOCAL_CONNECTIONS = {
 }
 
 const getConnectionValues = async (buildId, opts, isLocal) => {
+  if (isLocal) {
+    await local.createDB()
+    return LOCAL_CONNECTIONS
+  }
+
   if (process.env.NAWR_SQL_CONNECTION) {
     log.debug('connection details exist.')
     return JSON.parse(process.env.NAWR_SQL_CONNECTION)
-  }
-
-  console.log({ isLocal })
-  if (isLocal) {
-    return LOCAL_CONNECTIONS
   }
 
   const spinner = ora('Creating Database').start()
