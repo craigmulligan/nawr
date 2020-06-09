@@ -24,7 +24,6 @@ const middleware = argv => {
 
   argv.migrator = migrator
   argv.transaction = transaction
-  argv.client = client
 
   return argv
 }
