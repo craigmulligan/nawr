@@ -3,14 +3,17 @@
 const dataApi = require('data-api-client')
 const { Agent } = require('http')
 const { URL } = require('url')
+const { applyAuth } = require('./utils')
 
-const isLocal = options => {
+const isHttp = options => {
   if (options.endpoint) {
     const url = new URL(options.endpoint)
 
     if (url.protocol === 'http') {
       return true
     }
+
+    return false
   }
 
   return false
@@ -22,28 +25,26 @@ if (!process.env.NAWR_SQL_CONNECTION) {
   )
 }
 const connectionValue = JSON.parse(process.env.NAWR_SQL_CONNECTION)
-const { secretArn, resourceArn, database, version, options } = connectionValue
-
-const local = isLocal(options)
-
 const {
-  NAWR_AWS_KEY_ID: accessKeyId,
-  NAWR_AWS_SECRET: secretAccessKey,
-  NAWR_AWS_REGION: region
-} = process.env
+  secretArn,
+  resourceArn,
+  database,
+  version,
+  options,
+  isLocal
+} = connectionValue
+
+applyAuth(isLocal)
 
 const client = dataApi({
   resourceArn,
   secretArn,
   database,
-  region: region || 'us-east-1',
   options: {
     ...options,
     httpOptions: {
-      agent: isLocal(options) && new Agent()
-    },
-    accessKeyId: accessKeyId || 'local-dummy-accesskey',
-    secretAccessKey: secretAccessKey || 'local-dummy-secret'
+      agent: isHttp(options) && new Agent()
+    }
   }
 })
 module.exports = client

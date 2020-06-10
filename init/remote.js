@@ -1,4 +1,5 @@
-const AWS = require('../aws')
+const AWS = require('aws-sdk')
+const { applyAuth } = require('../utils')
 const nanoid = require('./id')
 const { promisify } = require('util')
 
@@ -51,6 +52,7 @@ async function sleep(timeout) {
 }
 
 async function waitOnAvailable(dbArn) {
+  applyAuth()
   let status = null
 
   while (status !== 'available') {
@@ -63,6 +65,9 @@ async function waitOnAvailable(dbArn) {
 
 // Creates a serverless postgres db + sercret for acess via the data-api
 async function createDB(identifier, { opts }) {
+  // ensures the aws-sdk has the correct keys loaded
+  applyAuth()
+
   const username = 'master'
   const dbName = 'master'
   const password = nanoid()
@@ -129,7 +134,8 @@ async function createDB(identifier, { opts }) {
   return {
     resourceArn: db.DBClusterArn,
     secretArn: secret.ARN,
-    database: dbName
+    database: dbName,
+    isLocal: false
   }
 }
 

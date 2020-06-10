@@ -6,6 +6,7 @@ const LOCAL_CONNECTIONS = {
   resourceArn: 'arn:aws:rds:us-east-1:123456789012:cluster:dummy',
   secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:dummy',
   database: 'master',
+  isLocal: true,
   options: {
     endpoint: 'http://127.0.0.7:8080'
   }
