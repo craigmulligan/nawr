@@ -40,3 +40,17 @@ exports.builder = yargs => {
   yargs.middleware(middleware)
 }
 exports.middleware = middleware
+
+// Exported for programatic usage
+// Useful when using with unit tests
+module.exports.up = args => {
+  const argv = middleware(args)
+  return api.up.handler(argv)
+}
+
+// Exported for programatic usage
+// Useful when using with unit tests
+module.exports.down = args => {
+  const argv = middleware(args)
+  return api.down.handler(argv)
+}
