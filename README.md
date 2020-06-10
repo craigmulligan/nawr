@@ -13,6 +13,7 @@ It pairs nicely with platforms like vercel and frameworks like next.js, but it s
 - Automatically create preview database for every deploy.
 - Automatically create provisioned database for production deploys.
 - Uses the [RDS http api](https://github.com/jeremydaly/data-api-client), which handles connection pooling and is optimized for serverless usecases.
+- Seemless local development workflow against a local db via the RDS http api.
 - Offers built in migrations which run as transactions so you are never left in a funky state on failed deploys.
 
 ### Installation
@@ -20,6 +21,10 @@ It pairs nicely with platforms like vercel and frameworks like next.js, but it s
 ```
 npm install nawr
 ```
+
+### System requirements
+
+You'll need both [docker](https://docs.docker.com/get-docker/) and [docker-compose](https://docs.docker.com/compose/install/#install-compose) installed on your system for the local-dev workflow.
 
 ### Usage
 
@@ -104,7 +109,7 @@ npm run dev
 
 #### Required Environment Variables
 
-Before deploying set the following environment variables in you vercel dashboard:
+Before deploying set the following environment variables in you're vercel project settings dashboard:
 
 You can use your root AWS user keys but It's best practice to create a new [AWS IAM credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_api) it'll need the following policies:
 
@@ -112,10 +117,10 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 - AmazonRDSDataFullAccess
 
 ```
-| Environment Variable | Required |
-| -------------------- | -------- |
-| NAWR_AWS_KEY_ID      | true     |
-| NAWR_AWS_SECRET      | true     |
-| NAWR_AWS_REGION      | false    |
-| NAWR_IS_PROD         | false    |
+| Environment Variable | Required | description |
+| -------------------- | -------- | ----------- |
+| NAWR_AWS_KEY_ID      | true     | aws credentials key |
+| NAWR_AWS_SECRET      | true     | aws credentials secret |
+| NAWR_AWS_REGION      | false    | aws region  |
+| NAWR_IS_PROD         | false    | This is used to differentiate prod databases (permanent) with deployment databases |
 ```
