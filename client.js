@@ -1,7 +1,20 @@
 // This is required so config.update takes place.
 // It must be required before the data-api-client
-const http = require('http')
 const dataApi = require('data-api-client')
+const { Agent } = require('http')
+const { URL } = require('url')
+
+const isLocal = options => {
+  if (options.endpoint) {
+    const url = new URL(options.endpoint)
+
+    if (url.protocol === 'http') {
+      return true
+    }
+  }
+
+  return false
+}
 
 if (!process.env.NAWR_SQL_CONNECTION) {
   throw new Error(
@@ -9,8 +22,10 @@ if (!process.env.NAWR_SQL_CONNECTION) {
   )
 }
 const connectionValue = JSON.parse(process.env.NAWR_SQL_CONNECTION)
-const { secretArn, resourceArn, database, options } = connectionValue
-const isLocal = options && options.isLocal
+const { secretArn, resourceArn, database, version, options } = connectionValue
+
+const local = isLocal(options)
+
 const {
   NAWR_AWS_KEY_ID: accessKeyId,
   NAWR_AWS_SECRET: secretAccessKey,
@@ -21,17 +36,14 @@ const client = dataApi({
   resourceArn,
   secretArn,
   database,
-  sslEnabled: false,
-  keepAlive: false,
-  debug: true,
   region: region || 'us-east-1',
   options: {
     ...options,
     httpOptions: {
-      agent: isLocal && new Agent()
+      agent: isLocal(options) && new Agent()
     },
-    accessKeyId,
-    secretAccessKey
+    accessKeyId: accessKeyId || 'local-dummy-accesskey',
+    secretAccessKey: secretAccessKey || 'local-dummy-secret'
   }
 })
 module.exports = client

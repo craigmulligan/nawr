@@ -16,11 +16,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": [
-    "serverless",
-    "next.js",
-    "sql"
-  ],
+  "keywords": ["serverless", "next.js", "sql"],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
@@ -29,7 +25,6 @@
   "dependencies": {
     "aws-sdk": "^2.680.0",
     "data-api-client": "^1.0.1",
-    "dockerode": "^3.2.0",
     "dotenv": "^8.2.0",
     "envfile": "^5.2.0",
     "lodash": "^4.17.15",
@@ -37,6 +32,7 @@
     "nanoid": "^3.1.9",
     "ora": "^4.0.4",
     "umzug": "^2.3.0",
+    "docker-compose": "^0.23.4",
     "yargs": "^15.3.1"
   },
   "peerDependencies": {

@@ -3,37 +3,17 @@ const fs = require('fs').promises
 const path = require('path')
 const ora = require('ora')
 const log = require('loglevel')
-const { createDB, waitOnAvailable } = require('./aws-utils')
+const remote = require('./remote')
 const local = require('./local')
 const nanoid = require('./id')
+const pkg = require('../package.json')
 
-// https://github.com/koxudaxi/local-data-api
-const LOCAL_CONNECTIONS = {
-  resourceArn: 'arn:aws:rds:us-east-1:123456789012:cluster:dummy',
-  secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:dummy',
-  database: 'master',
-  isLocal: true,
-  options: {
-    endpoint: 'http://127.0.0.7:8080'
-  }
-}
-
-const getConnectionValues = async (buildId, opts, isLocal) => {
-  if (isLocal) {
-    await local.createDB()
-    return LOCAL_CONNECTIONS
-  }
-
-  if (process.env.NAWR_SQL_CONNECTION) {
-    log.debug('connection details exist.')
-    return JSON.parse(process.env.NAWR_SQL_CONNECTION)
-  }
-
+const getConnectionValues = provider => async (buildId, opts) => {
   const spinner = ora('Creating Database').start()
   let connectionValues
 
   try {
-    connectionValues = await createDB(buildId, opts)
+    connectionValues = await provider.createDB(buildId, opts)
     spinner.succeed(`Database created: ${connectionValues.resourceArn}`)
   } catch (err) {
     spinner.fail(`Failed to create database: ${err.message}`)
@@ -42,7 +22,7 @@ const getConnectionValues = async (buildId, opts, isLocal) => {
 
   spinner.start('Waiting on database to be available')
   try {
-    await waitOnAvailable(connectionValues.resourceArn)
+    await provider.waitOnAvailable(connectionValues)
     spinner.succeed(`Database is available`)
   } catch (err) {
     spinner.fail(
@@ -52,10 +32,7 @@ const getConnectionValues = async (buildId, opts, isLocal) => {
   }
 
   spinner.clear()
-  return {
-    ...connectionValues,
-    isLocal
-  }
+  return connectionValues
 }
 
 const getEnv = async envFilePath => {
@@ -75,7 +52,7 @@ const setEnv = async (envFilePath, env) => {
   await fs.writeFile(envFilePath, envStr)
 }
 
-const init = async ({ engine, prefix, local }) => {
+const init = async ({ engine, prefix, local: isLocal }) => {
   if (!engine) {
     engine = 'postgresql'
   }
@@ -89,15 +66,13 @@ const init = async ({ engine, prefix, local }) => {
 
   const engineMode = isProd ? 'provisioned' : 'serverless'
 
+  const provider = isLocal ? local : remote
+
   // creates db and wait for it to be available
-  const connectionValues = await getConnectionValues(
-    buildId,
-    {
-      engineMode,
-      engine: `aurora-${engine}`
-    },
-    local
-  )
+  const connectionValues = await getConnectionValues(provider)(buildId, {
+    engineMode,
+    engine: `aurora-${engine}`
+  })
 
   const CWD = process.cwd()
   const envFilePath = path.join(CWD, '.env')
@@ -109,7 +84,10 @@ const init = async ({ engine, prefix, local }) => {
   try {
     await setEnv(envFilePath, {
       ...env,
-      NAWR_SQL_CONNECTION: JSON.stringify(connectionValues)
+      NAWR_SQL_CONNECTION: JSON.stringify({
+        ...connectionValues,
+        version: pkg.version
+      })
     })
     log.info('Connection values saved to .env')
   } catch (err) {

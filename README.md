@@ -32,7 +32,7 @@ First, update your package.json scripts to run nawr during your build step.
 ```diff
 // package.json
 - "dev": "next dev",
-+ "dev": "nawr init && nawr migrate up && next dev",
++ "dev": "nawr init --local && nawr migrate up && next dev",
 - "build": "next build",
 + "build": "nawr init && nawr migrate up && next build",
 ```
@@ -96,9 +96,15 @@ export const getServerSideProps = async () => {
 export default Home
 ```
 
+### Now run the dev server
+
+```
+npm run dev
+```
+
 #### Required Environment Variables
 
-Then set the required variables this can be in your `.env` and/or via the vercel dashboard:
+Before deploying set the following environment variables in you vercel dashboard:
 
 You can use your root AWS user keys but It's best practice to create a new [AWS IAM credentials](https://docs.aws.amazon.com/IAM/latest/UserGuide/id_users_create.html#id_users_create_api) it'll need the following policies:
 
