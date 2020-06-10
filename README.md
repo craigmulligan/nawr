@@ -30,7 +30,7 @@ You'll need both [docker](https://docs.docker.com/get-docker/) and [docker-compo
 
 This illustrates how to use nawr with next.js & vercel.
 
-You can follow the diff'd example below or just clone the [example](https://github.com/hobochild/nawr-example):
+You can follow the diff'd example below or just clone the [example](https://github.com/hobochild/boiler):
 
 First, update your package.json scripts to run nawr during your build step.
 
