@@ -15,17 +15,13 @@ class Storage {
     this.client = client
   }
   async logMigration(name) {
-    try {
-      await createMigrationTable(this.client)
-      return this.transaction.query(
-        'INSERT INTO migration (name) VALUES(:name);',
-        {
-          name
-        }
-      )
-    } catch (err) {
-      throw err
-    }
+    await createMigrationTable(this.client)
+    return this.transaction.query(
+      'INSERT INTO migration (name) VALUES(:name);',
+      {
+        name
+      }
+    )
   }
   async unlogMigration(name) {
     return this.transaction.query('DELETE FROM migration WHERE name = :name;', {
