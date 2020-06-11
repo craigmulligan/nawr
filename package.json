@@ -22,14 +22,16 @@
   "bugs": {
     "url": "https://github.com/hobochild/now-now/issues"
   },
+  "devDependencies": {
+    "jest": "^26.0.1",
+    "execa": "^4.0.2"
+  },
   "dependencies": {
     "aws-sdk": "^2.680.0",
     "data-api-client": "^1.0.1",
     "docker-compose": "^0.23.4",
     "dotenv": "^8.2.0",
     "envfile": "^5.2.0",
-    "execa": "^4.0.2",
-    "jest": "^26.0.1",
     "lodash": "^4.17.15",
     "loglevel": "^1.6.8",
     "nanoid": "^3.1.9",
