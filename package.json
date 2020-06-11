@@ -7,7 +7,7 @@
     "nawr": "bin/index.js"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest --runInBand"
   },
   "browser": {
     "./client.js": "./noop.js"
@@ -16,11 +16,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": [
-    "serverless",
-    "next.js",
-    "sql"
-  ],
+  "keywords": ["serverless", "next.js", "sql"],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
@@ -29,14 +25,16 @@
   "dependencies": {
     "aws-sdk": "^2.680.0",
     "data-api-client": "^1.0.1",
+    "docker-compose": "^0.23.4",
     "dotenv": "^8.2.0",
     "envfile": "^5.2.0",
+    "execa": "^4.0.2",
+    "jest": "^26.0.1",
     "lodash": "^4.17.15",
     "loglevel": "^1.6.8",
     "nanoid": "^3.1.9",
     "ora": "^4.0.4",
     "umzug": "^2.3.0",
-    "docker-compose": "^0.23.4",
     "yargs": "^15.3.1"
   },
   "peerDependencies": {

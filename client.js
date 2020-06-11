@@ -6,7 +6,7 @@ const { URL } = require('url')
 const { applyAuth } = require('./utils')
 
 const isHttp = options => {
-  if (options.endpoint) {
+  if (options && options.endpoint) {
     const url = new URL(options.endpoint)
 
     if (url.protocol === 'http') {

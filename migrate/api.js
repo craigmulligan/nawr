@@ -25,7 +25,7 @@ const commit = transaction => {
     const spinner = ora()
     try {
       spinner.start(`Commiting ${migrations.length} migrations`)
-      const result = await transaction.commit()
+      await transaction.commit()
       spinner.succeed(`Commited ${migrations.length} migrations`)
       log.info(table(migrations, '✔'))
     } catch (err) {

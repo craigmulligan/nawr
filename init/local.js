@@ -20,7 +20,7 @@ const createDB = async (buildId, { engine }) => {
       config: `${engine}.yml`
     })
     .then(
-      data => {
+      () => {
         return LOCAL_CONNECTIONS
       },
       err => {
@@ -35,7 +35,7 @@ const waitOnAvailable = () => {
   return Promise.resolve()
 }
 
-module.exports = {
+module.exports = () => ({
   createDB,
   waitOnAvailable
-}
+})
