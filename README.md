@@ -121,6 +121,44 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 | -------------------- | -------- | ----------- |
 | NAWR_AWS_KEY_ID      | true     | aws credentials key |
 | NAWR_AWS_SECRET      | true     | aws credentials secret |
-| NAWR_AWS_REGION      | false    | aws region  |
-| NAWR_IS_PROD         | false    | This is used to differentiate prod databases (permanent) with deployment databases |
+```
+
+## Commands
+
+### init
+
+```
+nawr init
+
+initialize sql db
+
+Options:
+  --loglevel, -l  set log-level                                [default: "info"]
+  --version       Show version number                                  [boolean]
+  -h, --help      Show help                                            [boolean]
+  --engine, -e    set storage engine
+                        [choices: "postgresql", "mysql"] [default: "postgresql"]
+  --mode, -m      set engine mode
+                  [choices: "serverless", "provisioned"] [default: "serverless"]
+  --id            set database id                                       [string]
+  --local         Run a local db instance                              [boolean]
+```
+
+### migrate
+
+```
+nawr migrate <command>
+
+run migration tasks
+
+Commands:
+  nawr migrate history  View migration history
+  nawr migrate pending  View pending migrations
+  nawr migrate up       migrate up
+  nawr migrate down     migrate down
+
+Options:
+  --loglevel, -l  set log-level                                [default: "info"]
+  --version       Show version number                                  [boolean]
+  -h, --help      Show help                                            [boolean]
 ```
