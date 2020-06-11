@@ -7,6 +7,8 @@ const aws = require('aws-sdk')
 const { applyAuth } = require('../utils')
 const fs = require('fs')
 
+TIMEOUT = 600000
+
 beforeEach(() => {
   try {
     fs.unlinkSync('./.env')
@@ -36,7 +38,7 @@ describe('migrate', () => {
       } catch (err) {
         expect(err.message).toContain('ERROR: relation "users" does not exist')
       }
-    })
+    }, TIMEOUT)
   })
 })
 
@@ -67,7 +69,7 @@ describe('init', () => {
       // check containers are running
       expect(out).toContain('nawr-db')
       expect(out).toContain('nawr-proxy')
-    })
+    }, TIMEOUT)
   })
 
   describe('remote', () => {
@@ -98,6 +100,6 @@ describe('init', () => {
       expect(db.Status).toBe('available')
       expect(db.Engine).toBe('aurora-postgresql')
       expect(db.EngineMode).toBe('serverless')
-    }, 600000)
+    }, TIMEOUT)
   })
 })
