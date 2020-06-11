@@ -52,25 +52,13 @@ const setEnv = async (envFilePath, env) => {
   await fs.writeFile(envFilePath, envStr)
 }
 
-const init = async ({ engine, prefix, local: isLocal }) => {
-  if (!engine) {
-    engine = 'postgresql'
-  }
-
-  const isProd = process.env.NAWR_IS_PROD
-  let buildId = isProd ? 'prod' : nanoid()
-
-  if (prefix) {
-    buildId = `${prefix}-${buildId}`
-  }
-
-  const engineMode = isProd ? 'provisioned' : 'serverless'
-
+const init = async ({ engine, local: isLocal, id, mode }) => {
+  const buildId = id ? id : nanoid()
   const provider = isLocal ? local : remote
 
   // creates db and wait for it to be available
-  const connectionValues = await getConnectionValues(provider)(buildId, {
-    engineMode,
+  const connectionValues = await getConnectionValues(provider())(buildId, {
+    engineMode: mode,
     engine: `aurora-${engine}`
   })
 
@@ -107,9 +95,15 @@ exports.builder = {
     default: 'postgresql',
     choices: ['postgresql', 'mysql']
   },
-  prefix: {
-    alias: 'p',
-    description: 'Add a prefix to db Ids'
+  mode: {
+    alias: 'm',
+    description: 'set engine mode',
+    default: 'serverless',
+    choices: ['serverless', 'provisioned']
+  },
+  id: {
+    description: 'set database id',
+    type: 'string'
   },
   local: {
     description: 'Run a local db instance',
@@ -117,3 +111,4 @@ exports.builder = {
   }
 }
 exports.handler = init
+exports.getEnv = getEnv

@@ -33,7 +33,7 @@ exports.command = 'migrate <command>'
 exports.describe = 'run migration tasks'
 exports.builder = yargs => {
   // register subcomands
-  for (key in api) {
+  for (let key in api) {
     yargs.command(api[key])
   }
 
