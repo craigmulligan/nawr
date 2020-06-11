@@ -39,7 +39,7 @@ First, update your package.json scripts to run nawr during your build step.
 - "dev": "next dev",
 + "dev": "nawr init --local && nawr migrate up && next dev",
 - "build": "next build",
-+ "build": "nawr init && nawr migrate up && next build",
++ "build": "nawr init --name $DB_NAME --mode $DB_MODE && nawr migrate up && next build",
 ```
 
 Add a migration to setup up you database, any files in your migration folder will be run on `nawr migrate`.
@@ -121,6 +121,21 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 | -------------------- | -------- | ----------- |
 | NAWR_AWS_KEY_ID      | true     | aws credentials key |
 | NAWR_AWS_SECRET      | true     | aws credentials secret |
+```
+
+If you want set up a permanent (provisioned) database for your (production|staging) environment. You just need to pass `--name` & `--mode=provisioned` to the `init` command.
+
+For instance if your build command is:
+
+```
+nawr init --name $DB_NAME --mode $DB_MODE && nawr migrate up && next build
+```
+
+Then in on your production CI deploy you should have the following envars set. For preview deploys its safe to leave them unset.
+
+```
+export DB_NAME=production
+export DB_MODE=provisioned
 ```
 
 ## Commands
