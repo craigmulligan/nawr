@@ -123,7 +123,7 @@ describe('init', () => {
           'init',
           '--mode',
           'provisioned',
-          '--name',
+          '--id',
           dbName,
           '--protect',
           '1'
