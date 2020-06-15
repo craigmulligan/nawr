@@ -25,14 +25,7 @@ if (!process.env.NAWR_SQL_CONNECTION) {
   )
 }
 const connectionValue = JSON.parse(process.env.NAWR_SQL_CONNECTION)
-const {
-  secretArn,
-  resourceArn,
-  database,
-  version,
-  options,
-  isLocal
-} = connectionValue
+const { secretArn, resourceArn, database, options, isLocal } = connectionValue
 
 applyAuth(isLocal)
 
