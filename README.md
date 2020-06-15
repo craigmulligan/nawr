@@ -2,11 +2,11 @@
 
 > Serverless RDS dbs on demand.
 
-I wanted an easy way to spin up a sql database for every one of my [vercel](https://vercel.com) deploys. I found that amazons RDS offers a `serverless` mode, which means you are only charged for the time that the database is "active".
+I wanted an easy way to spin up a sql database for every one of my [vercel](https://vercel.com) deploys. I found that [amazons RDS](https://aws.amazon.com/rds/) offers a `serverless` mode, which means you are only charged for the time that the database is "active".
 
 So I've built `nawr` a tool that simplifies the management and use of serverless sql databases.
 
-It pairs nicely with platforms like vercel and frameworks like next.js, but it should work with any serverless framework.
+It pairs nicely with platforms like [vercel](https://vercel.com) and frameworks like [next.js](https://nextjs.org) but it should work in most situations where you need an SQL db on demand.
 
 ### Features
 
