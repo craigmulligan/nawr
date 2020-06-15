@@ -40,10 +40,7 @@ module.exports = () => {
 
   async function cleanup(DBClusters) {
     // Deletes the oldest non-protected database
-
-    const clusters = DBClusters.filter(({ EngineMode }) => {
-      return EngineMode === 'serverless'
-    }).sort((a, b) => {
+    const clusters = DBClusters.sort((a, b) => {
       return new Date(a.ClusterCreateTime) - new Date(b.ClusterCreateTime)
     })
 
@@ -132,6 +129,7 @@ module.exports = () => {
           DBClusterIdentifier: identifier,
           MasterUsername: username,
           MasterUserPassword: password,
+          EngineMode: 'serverless',
           Tags: [
             {
               Key: 'nawr-version',
