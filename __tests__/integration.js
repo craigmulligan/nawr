@@ -121,8 +121,6 @@ describe('init', () => {
         await execa('node', [
           './bin/index.js',
           'init',
-          '--mode',
-          'provisioned',
           '--id',
           dbName,
           '--protect',
@@ -150,7 +148,6 @@ describe('init', () => {
 
         expect(db.Status).toBe('available')
         expect(db.Engine).toBe('aurora-postgresql')
-        expect(db.EngineMode).toBe('provisioned')
         expect(db.DeletionProtection).toBe(true)
         expect(db.DBClusterIdentifier).toBe(dbName)
       },

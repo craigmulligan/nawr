@@ -52,13 +52,12 @@ const setEnv = async (envFilePath, env) => {
   await fs.writeFile(envFilePath, envStr)
 }
 
-const init = async ({ engine, local: isLocal, id, mode, protect }) => {
+const init = async ({ engine, local: isLocal, id, protect }) => {
   const buildId = id ? id : nanoid()
   const provider = isLocal ? local : remote
 
   // creates db and wait for it to be available
   const connectionValues = await getConnectionValues(provider())(buildId, {
-    EngineMode: mode,
     Engine: `aurora-${engine}`,
     DeletionProtection: !!protect
   })
@@ -95,12 +94,6 @@ exports.builder = {
     description: 'set storage engine',
     default: 'postgresql',
     choices: ['postgresql', 'mysql']
-  },
-  mode: {
-    alias: 'm',
-    description: 'set engine mode',
-    default: 'serverless',
-    choices: ['serverless', 'provisioned']
   },
   id: {
     description: 'set database id',

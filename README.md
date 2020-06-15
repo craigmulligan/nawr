@@ -11,7 +11,6 @@ It pairs nicely with platforms like [vercel](https://vercel.com) and frameworks 
 ### Features
 
 - Automatically create preview database for every deploy.
-- Automatically create provisioned database for production deploys.
 - Uses the [RDS http api](https://github.com/jeremydaly/data-api-client), which handles connection pooling and is optimized for serverless usecases.
 - Seemless local development workflow against a local db via the RDS http api.
 - Offers built in migrations which run as transactions so you are never left in a funky state on failed deploys.
@@ -40,7 +39,7 @@ First, update your package.json scripts to run nawr during your build step.
 - "dev": "next dev",
 + "dev": "nawr init --local && nawr migrate up && next dev",
 - "build": "next build",
-+ "build": "nawr init --name $DB_NAME --mode $DB_MODE --protect $DB_PROTECT && nawr migrate up && next build",
++ "build": "nawr init --name $DB_NAME --protect $DB_PROTECT && nawr migrate up && next build",
 ```
 
 Add a migration to setup up you database, any files in your migration folder will be run on `nawr migrate`.
@@ -128,19 +127,18 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 | NAWR_AWS_SECRET      | true     | aws credentials secret |
 ```
 
-If you want set up a permanent (provisioned) database for your (production|staging) environment. You just need to pass `--name` & `--mode=provisioned` `--protect=1` to the `init` command.
+If you want set up a permanent (provisioned) database for your (production|staging) environment. You just need to pass `--name` & `--protect=1` to the `init` command.
 
 For instance if your build command is:
 
 ```
-nawr init --name $DB_NAME --mode $DB_MODE --protect $DB_PROTECT && nawr migrate up && next build
+nawr init --name $DB_NAME --protect $DB_PROTECT && nawr migrate up && next build
 ```
 
 Then in on your production CI deploy you should have the following envars set. For preview deploys its safe to leave them unset.
 
 ```
 export DB_NAME=production
-export DB_MODE=provisioned
 export DB_PROTECT=1
 ```
 
@@ -159,8 +157,6 @@ Options:
   -h, --help      Show help                                            [boolean]
   --engine, -e    set storage engine
                         [choices: "postgresql", "mysql"] [default: "postgresql"]
-  --mode, -m      set engine mode
-                  [choices: "serverless", "provisioned"] [default: "serverless"]
   --id            set database id                                       [string]
   --local         Run a local db instance                              [boolean]
   --protect       Never delete this db instance                         [number]
