@@ -108,6 +108,51 @@ describe('init', () => {
         expect(db.Status).toBe('available')
         expect(db.Engine).toBe('aurora-postgresql')
         expect(db.EngineMode).toBe('serverless')
+        expect(db.DeletionProtection).toBe(false)
+      },
+      TIMEOUT
+    )
+
+    it(
+      'Should create an aws production db',
+      async () => {
+        const dbName = 'integration-test'
+        // 10 minute timeout to ensure waitOnAvailable completes.
+        await execa('node', [
+          './bin/index.js',
+          'init',
+          '--mode',
+          'provisioned',
+          '--name',
+          dbName,
+          '--protect',
+          '1'
+        ])
+
+        // check env
+        const env = await getEnv('./.env')
+        const connectionValues = JSON.parse(env.NAWR_SQL_CONNECTION)
+        expect(connectionValues.isLocal).toBeFalsy()
+        expect(connectionValues.version).toBe(version)
+
+        // check aws it was created correctly
+        require('dotenv').config()
+        applyAuth()
+        const rds = new aws.RDS()
+
+        const { DBClusters } = await rds
+          .describeDBClusters({
+            DBClusterIdentifier: connectionValues.resourceArn
+          })
+          .promise()
+
+        const [db] = DBClusters
+
+        expect(db.Status).toBe('available')
+        expect(db.Engine).toBe('aurora-postgresql')
+        expect(db.EngineMode).toBe('provisioned')
+        expect(db.DeletionProtection).toBe(true)
+        expect(db.DBClusterIdentifier).toBe(dbName)
       },
       TIMEOUT
     )

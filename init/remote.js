@@ -121,7 +121,6 @@ module.exports = () => {
     const username = 'master'
     const dbName = 'master'
     const password = nanoid()
-
     let db
     let secret
 
@@ -133,12 +132,6 @@ module.exports = () => {
           DBClusterIdentifier: identifier,
           MasterUsername: username,
           MasterUserPassword: password,
-          ScalingConfiguration: {
-            AutoPause: true,
-            MaxCapacity: 4,
-            MinCapacity: 2,
-            SecondsUntilAutoPause: 300
-          },
           Tags: [
             {
               Key: 'nawr-version',
