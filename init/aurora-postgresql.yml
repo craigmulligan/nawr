@@ -2,8 +2,8 @@ version: '3.1'
 
 services:
   proxy:
-    container_name: nawr-proxy
     image: koxudaxi/local-data-api:latest
+    container_name: nawr-proxy
     restart: always
     environment:
       ENGINE: PostgreSQLJDBC
@@ -16,8 +16,8 @@ services:
     ports:
       - "8080:80"
   db:
-    container_name: nawr-db
     image: postgres:10.7-alpine
+    container_name: nawr-db
     restart: always
     environment:
       POSTGRES_PASSWORD: example
