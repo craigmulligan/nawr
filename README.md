@@ -15,6 +15,7 @@ It pairs nicely with platforms like [vercel](https://vercel.com) and frameworks 
 - Uses the [RDS http api](https://github.com/jeremydaly/data-api-client), which handles connection pooling and is optimized for serverless usecases.
 - Seemless local development workflow against a local db via the RDS http api.
 - Offers built in migrations which run as transactions so you are never left in a funky state on failed deploys.
+- Automatically removes old databases when you run up against AWS quotas.
 
 ### Installation
 
@@ -39,7 +40,7 @@ First, update your package.json scripts to run nawr during your build step.
 - "dev": "next dev",
 + "dev": "nawr init --local && nawr migrate up && next dev",
 - "build": "next build",
-+ "build": "nawr init --name $DB_NAME --mode $DB_MODE && nawr migrate up && next build",
++ "build": "nawr init --name $DB_NAME --mode $DB_MODE --protect $DB_PROTECT && nawr migrate up && next build",
 ```
 
 Add a migration to setup up you database, any files in your migration folder will be run on `nawr migrate`.
@@ -107,6 +108,10 @@ export default Home
 npm run dev
 ```
 
+### Deploying
+
+**NOTE**: NB: When `nawr` hits the quota for maximum RDS instances (40). It will delete the oldest one to make room for more. If you have RDS databases that aren't managed by nawr should you enable **deletion protection** for all of them.
+
 #### Required Environment Variables
 
 Before deploying set the following environment variables in you're vercel project settings dashboard:
@@ -123,12 +128,12 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 | NAWR_AWS_SECRET      | true     | aws credentials secret |
 ```
 
-If you want set up a permanent (provisioned) database for your (production|staging) environment. You just need to pass `--name` & `--mode=provisioned` to the `init` command.
+If you want set up a permanent (provisioned) database for your (production|staging) environment. You just need to pass `--name` & `--mode=provisioned` `--protect=1` to the `init` command.
 
 For instance if your build command is:
 
 ```
-nawr init --name $DB_NAME --mode $DB_MODE && nawr migrate up && next build
+nawr init --name $DB_NAME --mode $DB_MODE --protect $DB_PROTECT && nawr migrate up && next build
 ```
 
 Then in on your production CI deploy you should have the following envars set. For preview deploys its safe to leave them unset.
@@ -136,6 +141,7 @@ Then in on your production CI deploy you should have the following envars set. F
 ```
 export DB_NAME=production
 export DB_MODE=provisioned
+export DB_PROTECT=1
 ```
 
 ## Commands
@@ -157,6 +163,7 @@ Options:
                   [choices: "serverless", "provisioned"] [default: "serverless"]
   --id            set database id                                       [string]
   --local         Run a local db instance                              [boolean]
+  --protect       Never delete this db instance                         [number]
 ```
 
 ### migrate
