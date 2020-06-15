@@ -52,14 +52,15 @@ const setEnv = async (envFilePath, env) => {
   await fs.writeFile(envFilePath, envStr)
 }
 
-const init = async ({ engine, local: isLocal, id, mode }) => {
+const init = async ({ engine, local: isLocal, id, mode, protect }) => {
   const buildId = id ? id : nanoid()
   const provider = isLocal ? local : remote
 
   // creates db and wait for it to be available
   const connectionValues = await getConnectionValues(provider())(buildId, {
-    engineMode: mode,
-    engine: `aurora-${engine}`
+    EngineMode: mode,
+    Engine: `aurora-${engine}`,
+    DeletionProtection: !!protect
   })
 
   const CWD = process.cwd()
@@ -108,6 +109,11 @@ exports.builder = {
   local: {
     description: 'Run a local db instance',
     type: 'boolean'
+  },
+  protect: {
+    description: 'Never delete this db instance',
+    type: 'number',
+    default: 0
   }
 }
 exports.handler = init
