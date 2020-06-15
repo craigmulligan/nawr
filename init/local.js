@@ -12,12 +12,12 @@ const LOCAL_CONNECTIONS = {
   }
 }
 
-const createDB = async (buildId, { engine }) => {
+const createDB = async (buildId, { Engine }) => {
   return compose
     .upAll({
       cwd: path.join(__dirname),
       log: true,
-      config: `${engine}.yml`
+      config: `${Engine}.yml`
     })
     .then(
       () => {
