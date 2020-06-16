@@ -155,11 +155,9 @@ Options:
   --loglevel, -l  set log-level                                [default: "info"]
   --version       Show version number                                  [boolean]
   -h, --help      Show help                                            [boolean]
-  --engine, -e    set storage engine
-                        [choices: "postgresql", "mysql"] [default: "postgresql"]
-  --id            set database id                                       [string]
-  --local         Run a local db instance                              [boolean]
-  --protect       Never delete this db instance                         [number]
+  --engine, -e    set storage engine [choices: "postgresql", "mysql"]  [default: "postgresql"]
+  --id            set database id                                        [string]
+  --stage         development|preview|production Run a local db instance [boolean]
 ```
 
 ### migrate

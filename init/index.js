@@ -1,39 +1,9 @@
 const envfile = require('envfile')
 const fs = require('fs').promises
 const path = require('path')
-const ora = require('ora')
 const log = require('loglevel')
-const remote = require('./remote')
-const local = require('./local')
-const nanoid = require('./id')
 const pkg = require('../package.json')
-
-const getConnectionValues = provider => async (buildId, opts) => {
-  const spinner = ora('Creating Database').start()
-  let connectionValues
-
-  try {
-    connectionValues = await provider.createDB(buildId, opts)
-    spinner.succeed(`Database created: ${connectionValues.resourceArn}`)
-  } catch (err) {
-    spinner.fail(`Failed to create database: ${err.message}`)
-    throw err
-  }
-
-  spinner.start('Waiting on database to be available')
-  try {
-    await provider.waitOnAvailable(connectionValues)
-    spinner.succeed(`Database is available`)
-  } catch (err) {
-    spinner.fail(
-      `Failed while waiting for database to be available: ${err.message}`
-    )
-    throw err
-  }
-
-  spinner.clear()
-  return connectionValues
-}
+const stages = require('./stage')
 
 const getEnv = async envFilePath => {
   // always use an .env file if available
@@ -52,15 +22,11 @@ const setEnv = async (envFilePath, env) => {
   await fs.writeFile(envFilePath, envStr)
 }
 
-const init = async ({ engine, local: isLocal, id, protect }) => {
-  const buildId = id ? id : nanoid()
-  const provider = isLocal ? local : remote
-
-  // creates db and wait for it to be available
-  const connectionValues = await getConnectionValues(provider())(buildId, {
-    Engine: `aurora-${engine}`,
-    DeletionProtection: !!protect
-  })
+const init = async ({ engine, stage, id }) => {
+  const db = new stages[stage](id, 'aurora-' + engine)
+  const connectionValues = await db.create()
+  // wait on available
+  await db.wait()
 
   const CWD = process.cwd()
   const envFilePath = path.join(CWD, '.env')
@@ -74,7 +40,9 @@ const init = async ({ engine, local: isLocal, id, protect }) => {
       ...env,
       NAWR_SQL_CONNECTION: JSON.stringify({
         ...connectionValues,
-        version: pkg.version
+        version: pkg.version,
+        stage,
+        id
       })
     })
     log.info('Connection values saved to .env')
@@ -99,14 +67,10 @@ exports.builder = {
     description: 'set database id',
     type: 'string'
   },
-  local: {
-    description: 'Run a local db instance',
-    type: 'boolean'
-  },
-  protect: {
-    description: 'Never delete this db instance',
-    type: 'number',
-    default: 0
+  stage: {
+    description: 'which stage to provision the database for',
+    default: 'development',
+    choices: ['development', 'preview', 'production']
   }
 }
 exports.handler = init
