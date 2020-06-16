@@ -1,26 +1,23 @@
 const AWS = require('aws-sdk')
-const { applyAuth } = require('../utils')
-const nanoid = require('./id')
-const pkg = require('../package.json')
+const nanoid = require('../id')
 
-module.exports = () => {
-  // ensures envars are loaded into aws-sdk
-  applyAuth()
+class RDS {
+  constructor() {
+    this.rds = new AWS.RDS()
+    this.secretsmanager = new AWS.SecretsManager()
+  }
 
-  const rds = new AWS.RDS()
-  const secretsmanager = new AWS.SecretsManager()
-
-  async function del(DBClusterIdentifier) {
+  async del(DBClusterIdentifier) {
     // NB always try del db first
     // as it has delete protection.
-    await rds
+    await this.rds
       .deleteDBCluster({
         DBClusterIdentifier,
         SkipFinalSnapshot: true
       })
       .promise()
 
-    return secretsmanager
+    return this.secretsmanager
       .deleteSecret({
         ForceDeleteWithoutRecovery: true,
         SecretId: DBClusterIdentifier
@@ -28,8 +25,8 @@ module.exports = () => {
       .promise()
   }
 
-  async function getDBAll() {
-    const { DBClusters } = await rds
+  async getDBAll() {
+    const { DBClusters } = await this.rds
       .describeDBClusters({
         MaxRecords: 40
       })
@@ -38,7 +35,7 @@ module.exports = () => {
     return DBClusters
   }
 
-  async function cleanup(DBClusters) {
+  async cleanup(DBClusters) {
     // Deletes the oldest non-protected database
     const clusters = DBClusters.sort((a, b) => {
       return new Date(a.ClusterCreateTime) - new Date(b.ClusterCreateTime)
@@ -47,21 +44,21 @@ module.exports = () => {
     try {
       // mutates
       const oldest = clusters.shift()
-      await del(oldest.DBClusterIdentifier)
+      await this.del(oldest.DBClusterIdentifier)
     } catch (err) {
       if (
         err.code === 'InvalidParameterCombination' &&
         err.message.includes('Cannot delete protected Cluster')
       ) {
-        return cleanup(clusters)
+        return this.cleanup(clusters)
       } else {
         throw err
       }
     }
   }
 
-  async function getDBByName(name) {
-    const { DBClusters } = await rds
+  async getDBByName(name) {
+    const { DBClusters } = await this.rds
       .describeDBClusters({
         Filters: [
           {
@@ -79,8 +76,8 @@ module.exports = () => {
     return db
   }
 
-  async function getDBStatus(dbArn) {
-    const { DBClusters } = await rds
+  async getDBStatus(dbArn) {
+    const { DBClusters } = await this.rds
       .describeDBClusters({
         DBClusterIdentifier: dbArn
       })
@@ -93,7 +90,7 @@ module.exports = () => {
     return db.Status
   }
 
-  async function sleep(timeout) {
+  async sleep(timeout) {
     return new Promise(res => {
       setTimeout(() => {
         res()
@@ -101,20 +98,18 @@ module.exports = () => {
     })
   }
 
-  async function waitOnAvailable({ resourceArn }) {
+  async waitOnAvailable({ resourceArn }) {
     let status = null
 
     while (status !== 'available') {
-      status = await getDBStatus(resourceArn)
-      await sleep(5000)
+      status = await this.getDBStatus(resourceArn)
+      await this.sleep(5000)
     }
 
     return status
   }
 
-  // Creates a serverless postgres db + sercret for acess via the data-api
-  async function createDB(identifier, opts) {
-    // ensures the aws-sdk has the correct keys loaded
+  async createDB(identifier, opts) {
     const username = 'master'
     const dbName = 'master'
     const password = nanoid()
@@ -122,7 +117,7 @@ module.exports = () => {
     let secret
 
     try {
-      db = await rds
+      db = await this.rds
         .createDBCluster({
           DatabaseName: dbName,
           EnableHttpEndpoint: true,
@@ -130,31 +125,25 @@ module.exports = () => {
           MasterUsername: username,
           MasterUserPassword: password,
           EngineMode: 'serverless',
-          Tags: [
-            {
-              Key: 'nawr-version',
-              Value: pkg.version
-            }
-          ],
           ...opts
         })
         .promise()
         .then(data => data.DBCluster)
     } catch (err) {
       if (err.code === 'DBClusterAlreadyExistsFault') {
-        db = await getDBByName(identifier)
+        db = await this.getDBByName(identifier)
       } else if (err.code == 'DBClusterQuotaExceededFault') {
-        const dbs = await getDBAll()
-        await cleanup(dbs)
+        const dbs = await this.getDBAll()
+        await this.cleanup(dbs)
         // start again
-        return createDB(identifier, opts)
+        return this.createDB(identifier, opts)
       } else {
         throw new Error(`[Could not create DBCluster]: ${err.message}`)
       }
     }
 
     try {
-      secret = await secretsmanager
+      secret = await this.secretsmanager
         .createSecret({
           ClientRequestToken: nanoid(),
           Description: 'next-sql-db-password',
@@ -172,7 +161,7 @@ module.exports = () => {
     } catch (err) {
       if (err.code === 'ResourceExistsException') {
         try {
-          secret = await secretsmanager
+          secret = await this.secretsmanager
             .describeSecret({
               SecretId: identifier
             })
@@ -188,13 +177,9 @@ module.exports = () => {
     return {
       resourceArn: db.DBClusterArn,
       secretArn: secret.ARN,
-      database: dbName,
-      isLocal: false
+      database: dbName
     }
   }
-
-  return {
-    createDB,
-    waitOnAvailable
-  }
 }
+
+module.exports = RDS
