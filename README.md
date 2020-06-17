@@ -40,7 +40,7 @@ First, update your package.json scripts to run nawr during your build step.
 - "dev": "next dev",
 + "dev": "nawr init --local && nawr migrate up && next dev",
 - "build": "next build",
-+ "build": "nawr init --name $DB_NAME --stage=$DB_STAGE && nawr migrate up && next build",
++ "build": "nawr init --id $DB_ID --stage=$DB_STAGE && nawr migrate up && next build",
 ```
 
 Add a migration to setup up you database, any files in your migration folder will be run on `nawr migrate`.
@@ -139,7 +139,7 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 For instance if your build command is:
 
 ```
-nawr init --name $DB_NAME --stage $DB_STAGE && nawr migrate up && next build
+nawr init --id $DB_ID --stage $DB_STAGE && nawr migrate up && next build
 ```
 
 Then in on your _preview_ CI deploy you should have the following envars set.
@@ -151,7 +151,7 @@ export DB_STAGE=preview
 For _production_ you should always name you db so you use the same db instead of creating a new one for every deploy.
 
 ```
-export DB_NAME=production
+export DB_ID=myproject-production-db
 export DB_STAGE=production
 ```
 
