@@ -16,7 +16,7 @@ const argv = yargs
   .version()
   .help('h')
   .alias('h', 'help')
-  .fail((msg, err, yargs) => {
+  .fail((msg, err) => {
     log.error(err)
     process.exit(1)
   }).argv

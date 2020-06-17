@@ -7,7 +7,8 @@
     "nawr": "bin/index.js"
   },
   "scripts": {
-    "test": "jest __tests__/integration.spec.js --runInBand"
+    "test": "jest __tests__/integration.spec.js --runInBand",
+    "test:debug": "node inspect node_modules/.bin/jest --runInBand"
   },
   "browser": {
     "./client.js": "./noop.js"
@@ -16,11 +17,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": [
-    "serverless",
-    "next.js",
-    "sql"
-  ],
+  "keywords": ["serverless", "next.js", "sql"],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {

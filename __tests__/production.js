@@ -2,7 +2,10 @@ const execa = require('execa')
 const { delEnv } = require('./utils')
 
 module.exports = () => {
-  beforeAll(delEnv)
+  beforeAll(() => {
+    delEnv()
+    jest.resetModules()
+  })
 
   describe('init', () => {
     it('should throw an error if production stage is used with out --id', async () => {
