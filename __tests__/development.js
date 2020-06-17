@@ -6,7 +6,10 @@ const path = require('path')
 const { delEnv, TIMEOUT } = require('./utils')
 
 module.exports = () => {
-  beforeAll(delEnv)
+  beforeAll(() => {
+    delEnv()
+    jest.resetModules()
+  })
 
   describe('init', () => {
     it(

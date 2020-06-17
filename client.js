@@ -41,4 +41,6 @@ const client = dataApi({
     }
   }
 })
+
+client.connectionValues = process.env.NAWR_SQL_CONNECTION
 module.exports = client

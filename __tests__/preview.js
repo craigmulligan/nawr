@@ -6,14 +6,24 @@ const stages = require('../init/stage')
 const { delEnv, TIMEOUT } = require('./utils')
 
 module.exports = () => {
-  beforeAll(delEnv)
+  beforeAll(() => {
+    delEnv()
+    jest.resetModules()
+  })
 
   describe('init', () => {
     it(
       'should create an aws db',
       async () => {
         // 10 minute timeout to ensure waitOnAvailable completes.
-        await execa('node', ['./bin/index.js', 'init', '--stage', 'preview'])
+        await execa('node', [
+          './bin/index.js',
+          'init',
+          '--stage',
+          'preview',
+          '--id',
+          'nawr-test'
+        ])
 
         // check env
         const env = await getEnv('./.env')
