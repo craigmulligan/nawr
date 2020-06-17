@@ -1,6 +1,17 @@
 const AWS = require('aws-sdk')
 const nanoid = require('../id')
 
+function pick(obj, props) {
+  const newObj = {}
+  for (let key of props) {
+    if (obj[key]) {
+      newObj[key] = obj[key]
+    }
+  }
+
+  return newObj
+}
+
 class RDS {
   constructor() {
     this.rds = new AWS.RDS()
@@ -98,8 +109,22 @@ class RDS {
     })
   }
 
+  async modifyDB(id, opts) {
+    const modifyOpts = pick(opts, [
+      'ScalingConfiguration',
+      'DeletionProtection'
+    ])
+
+    return this.rds
+      .modifyDBCluster({
+        ApplyImmediately: true,
+        DBClusterIdentifier: id,
+        ...modifyOpts
+      })
+      .promise()
+  }
+
   async waitOnAvailable(resourceArn) {
-    console.log('!waiting')
     let status = null
 
     while (status !== 'available') {
@@ -133,6 +158,8 @@ class RDS {
     } catch (err) {
       if (err.code === 'DBClusterAlreadyExistsFault') {
         db = await this.getDBByName(identifier)
+        // ensure the db has the expected name
+        await this.modifyDB(identifier, opts)
       } else if (err.code == 'DBClusterQuotaExceededFault') {
         const dbs = await this.getDBAll()
         await this.cleanup(dbs)
