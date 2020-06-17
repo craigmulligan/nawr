@@ -7,7 +7,7 @@
     "nawr": "bin/index.js"
   },
   "scripts": {
-    "test": "jest __tests__/integration.spec.js"
+    "test": "jest __tests__/integration.spec.js --runInBand"
   },
   "browser": {
     "./client.js": "./noop.js"
@@ -16,7 +16,11 @@
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": ["serverless", "next.js", "sql"],
+  "keywords": [
+    "serverless",
+    "next.js",
+    "sql"
+  ],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
@@ -24,8 +28,7 @@
   },
   "devDependencies": {
     "execa": "^4.0.2",
-    "jest": "^26.0.1",
-    "jest-serial-runner": "^1.1.0"
+    "jest": "^26.0.1"
   },
   "dependencies": {
     "aws-sdk": "^2.680.0",
@@ -42,9 +45,6 @@
   },
   "peerDependencies": {
     "next": ">=9.4.4"
-  },
-  "jest": {
-    "runner": "jest-serial-runner"
   },
   "homepage": "https://github.com/hobochild/now-now#readme"
 }

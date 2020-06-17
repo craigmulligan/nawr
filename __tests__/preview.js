@@ -1,19 +1,9 @@
 const execa = require('execa')
 const { getEnv } = require('../init')
-const compose = require('docker-compose')
 const version = require('../package.json').version
-const path = require('path')
 const aws = require('aws-sdk')
-const fs = require('fs')
 const stages = require('../init/stage')
-
-const TIMEOUT = 600000
-
-const delEnv = () => {
-  try {
-    fs.unlinkSync('./.env')
-  } catch (err) {}
-}
+const { delEnv, TIMEOUT } = require('./utils')
 
 module.exports = () => {
   beforeAll(delEnv)
@@ -55,14 +45,13 @@ module.exports = () => {
   })
 
   describe('migrate', () => {
-    it.only(
+    it(
       'up/down works',
       async () => {
         // migrate up
         await execa('node', ['./bin/index.js', 'migrate', 'up'])
 
         require('dotenv').config()
-        console.log(process.env.NAWR_SQL_CONNECTION)
         const client = require('../client')
 
         const { records } = await client.query(`select * from users;`)
