@@ -55,10 +55,12 @@ class Stage {
   }
 
   _create() {
+    // subclasses override this
     return Promise.resolve()
   }
 
   _wait() {
+    // subclasses override this
     return Promise.resolve()
   }
 
@@ -83,6 +85,7 @@ class Stage {
       this.spinner.succeed(`Database is available`)
     } catch (err) {
       this.spinner.fail(`Database is not available`)
+      throw err
     }
 
     return this.connectionValues

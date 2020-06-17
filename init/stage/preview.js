@@ -27,11 +27,11 @@ class PreviewStage extends Stage {
       Engine: this.engine
     }
     return this.rds.createDB(this.id, opts)
-    // createDB
   }
 
-  _wait() {
-    return this.rds.waitOnAvailable(this.connectionValues.resourceArn)
+  async _wait() {
+    await this.rds.waitOnAvailable(this.connectionValues.resourceArn)
+    return this.connectionValues
   }
 }
 

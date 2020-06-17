@@ -98,7 +98,8 @@ class RDS {
     })
   }
 
-  async waitOnAvailable({ resourceArn }) {
+  async waitOnAvailable(resourceArn) {
+    console.log('!waiting')
     let status = null
 
     while (status !== 'available') {
