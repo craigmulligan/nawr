@@ -19,6 +19,7 @@ class ProductionStage extends Stage {
       ScalingConfiguration: {
         AutoPause: false
       },
+      DeletionProtection: true,
       Tags: [
         {
           Key: 'nawr-version',
