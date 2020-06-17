@@ -148,12 +148,14 @@ Then in on your _preview_ CI deploy you should have the following envars set.
 export DB_STAGE=preview
 ```
 
-For _production_ you should name you db so it uses the same db instead of creating a new one.
+For _production_ you should always name you db so you use the same db instead of creating a new one for every deploy.
 
 ```
 export DB_NAME=production
 export DB_STAGE=production
 ```
+
+**NOTE**: You can always start with `stage=preview` for your production database while testing and then switch it to production when you are ready.
 
 ## Commands
 
