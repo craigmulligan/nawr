@@ -3,23 +3,13 @@ const { getEnv } = require('../init')
 const compose = require('docker-compose')
 const version = require('../package.json').version
 const path = require('path')
-const aws = require('aws-sdk')
-const fs = require('fs')
-const stages = require('../init/stage')
-
-const TIMEOUT = 600000
-
-const delEnv = () => {
-  try {
-    fs.unlinkSync('./.env')
-  } catch (err) {}
-}
+const { delEnv, TIMEOUT } = require('./utils')
 
 module.exports = () => {
   beforeAll(delEnv)
 
   describe('init', () => {
-    it.only(
+    it(
       'spin up a local db',
       async () => {
         await execa('node', ['./bin/index.js', 'init'])
@@ -49,7 +39,7 @@ module.exports = () => {
   })
 
   describe('migrate', () => {
-    it.only(
+    it(
       'up/down works',
       async () => {
         // migrate up

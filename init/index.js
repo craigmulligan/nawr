@@ -1,6 +1,7 @@
 const envfile = require('envfile')
 const fs = require('fs').promises
 const path = require('path')
+const ora = require('ora')
 const log = require('loglevel')
 const pkg = require('../package.json')
 const stages = require('./stage')
