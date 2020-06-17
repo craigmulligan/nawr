@@ -11,6 +11,7 @@ It pairs nicely with platforms like [vercel](https://vercel.com) and frameworks 
 ### Features
 
 - Automatically create preview database for every deploy.
+- Automatically creates a permanent database for production.
 - Uses the [RDS http api](https://github.com/jeremydaly/data-api-client), which handles connection pooling and is optimized for serverless usecases.
 - Seemless local development workflow against a local db via the RDS http api.
 - Offers built in migrations which run as transactions so you are never left in a funky state on failed deploys.
@@ -39,7 +40,7 @@ First, update your package.json scripts to run nawr during your build step.
 - "dev": "next dev",
 + "dev": "nawr init --local && nawr migrate up && next dev",
 - "build": "next build",
-+ "build": "nawr init --name $DB_NAME --protect $DB_PROTECT && nawr migrate up && next build",
++ "build": "nawr init --name $DB_NAME --stage=$DB_STAGE && nawr migrate up && next build",
 ```
 
 Add a migration to setup up you database, any files in your migration folder will be run on `nawr migrate`.
@@ -127,19 +128,31 @@ You can use your root AWS user keys but It's best practice to create a new [AWS 
 | NAWR_AWS_SECRET      | true     | aws credentials secret |
 ```
 
-If you want set up a permanent (provisioned) database for your (production|staging) environment. You just need to pass `--name` & `--protect=1` to the `init` command.
+#### Stages
+
+- `development` - Sets up a local database on your machine with a proxy for the RDS http data-api.
+- `preview` - Creates a RDS serverless database which will sleep after 15 mins of inactivity and does not have deletion protected.
+- `production` - Creates a RDS serverless database which will never sleep and has deletion protection.
+
+#### Recommended environment configuration:
 
 For instance if your build command is:
 
 ```
-nawr init --name $DB_NAME --protect $DB_PROTECT && nawr migrate up && next build
+nawr init --name $DB_NAME --stage $DB_STAGE && nawr migrate up && next build
 ```
 
-Then in on your production CI deploy you should have the following envars set. For preview deploys its safe to leave them unset.
+Then in on your _preview_ CI deploy you should have the following envars set.
+
+```
+export DB_STAGE=preview
+```
+
+For _production_ you should name you db so it uses the same db instead of creating a new one.
 
 ```
 export DB_NAME=production
-export DB_PROTECT=1
+export DB_STAGE=production
 ```
 
 ## Commands
@@ -152,12 +165,15 @@ nawr init
 initialize sql db
 
 Options:
-  --loglevel, -l  set log-level                                [default: "info"]
-  --version       Show version number                                  [boolean]
-  -h, --help      Show help                                            [boolean]
-  --engine, -e    set storage engine [choices: "postgresql", "mysql"]  [default: "postgresql"]
-  --id            set database id                                        [string]
-  --stage         development|preview|production Run a local db instance [boolean]
+--loglevel, -l set log-level [default: "info"]
+--version Show version number [boolean]
+-h, --help Show help [boolean]
+--engine, -e set storage engine
+[choices: "postgresql", "mysql"][default: "postgresql"]
+--id set database id [string]
+--stage which stage to provision the database for
+[choices: "development", "preview", "production"][default: "development"]
+
 ```
 
 ### migrate
@@ -168,13 +184,13 @@ nawr migrate <command>
 run migration tasks
 
 Commands:
-  nawr migrate history  View migration history
-  nawr migrate pending  View pending migrations
-  nawr migrate up       migrate up
-  nawr migrate down     migrate down
+nawr migrate history View migration history
+nawr migrate pending View pending migrations
+nawr migrate up migrate up
+nawr migrate down migrate down
 
 Options:
-  --loglevel, -l  set log-level                                [default: "info"]
-  --version       Show version number                                  [boolean]
-  -h, --help      Show help                                            [boolean]
+--loglevel, -l set log-level [default: "info"]
+--version Show version number [boolean]
+-h, --help Show help [boolean]
 ```

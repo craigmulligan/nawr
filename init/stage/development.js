@@ -21,7 +21,6 @@ class DevelopmentState extends Stage {
   }
 
   _create() {
-    console.log(path.join(__dirname, 'docker'))
     return compose
       .upAll({
         cwd: path.join(__dirname, 'docker'),
