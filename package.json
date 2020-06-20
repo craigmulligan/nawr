@@ -17,7 +17,11 @@
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": ["serverless", "next.js", "sql"],
+  "keywords": [
+    "serverless",
+    "next.js",
+    "sql"
+  ],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
@@ -36,7 +40,9 @@
     "lodash": "^4.17.15",
     "loglevel": "^1.6.8",
     "nanoid": "^3.1.9",
+    "node-lambda": "^0.17.0",
     "ora": "^4.0.4",
+    "serverless": "^1.73.1",
     "umzug": "^2.3.0",
     "yargs": "^15.3.1"
   },
