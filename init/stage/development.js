@@ -25,7 +25,8 @@ class DevelopmentState extends Stage {
       .upAll({
         cwd: path.join(__dirname, 'docker'),
         log: true,
-        config: `${this.engine}.yml`
+        config: `${this.engine}.yml`,
+        commandOptions: ['--force-recreate', '--build']
       })
       .then(
         () => {
