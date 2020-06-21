@@ -24,13 +24,3 @@ services:
       POSTGRES_DB: master
     ports:
         - "5432:5432"
-
-  workers:
-    build: /home/hobochild/Play/nawr/worker
-    container_name: nawr-workers
-    restart: always
-    volumes:
-      - ${PWD}:/usr/src/app/nawr
-      - /home/hobochild/Play/nawr/worker/server.js:/usr/src/app/server.js
-    ports:
-        - "8081:8081"
