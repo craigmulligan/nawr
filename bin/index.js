@@ -7,6 +7,7 @@ const argv = yargs
   .usage('$0 command')
   .command(require('../init'))
   .command(require('../migrate'))
+  .command(require('../dev'))
   .demand(1, 'must provide a valid command')
   .option('loglevel', {
     alias: 'l',
