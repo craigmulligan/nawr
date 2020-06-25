@@ -1,6 +1,7 @@
 const fetch = require('isomorphic-fetch')
 
 const run = async (fileName, event) => {
+  console.log('calling fetch!')
   const data = await fetch(
     `http://localhost:3000/__nawr__/workers?name=${fileName}`,
     {
