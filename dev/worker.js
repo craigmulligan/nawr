@@ -6,6 +6,7 @@ const { nanoid } = require('nanoid')
 const ora = require('ora')
 const { getEnv } = require('../init')
 const getPort = require('get-port')
+const execa = require('execa')
 
 const run = async (fileName, event) => {
   const spinner = ora()
@@ -64,47 +65,45 @@ const run = async (fileName, event) => {
   }
   spinner.succeed(`Compild worker ${fileName}`)
 
-  spinner.start(`Queuing worker ${fileName}`)
+  spinner.start(`Running worker ${fileName}`)
   const name = nanoid()
-  console.log(`
-     Your worker is being queued and will run via docker to 
-     You can view the logs with docker logs ${name}
-   `)
-
   // aws lambda invoke --endpoint http://localhost:9001 --no-sign-request \
   // --function-name myfunction --payload '{}' output.json
   const dockerEnv = Object.entries(env).reduce(
     (acc, [k, v]) => {
       return [...acc, '-e', `${k}=${v}`]
     },
-    ['-e', 'DOCKER_LAMBDA_STAY_OPEN=1']
+    ['-e', 'AWS_LAMBDA_FUNCTION_TIMEOUT=900']
   )
 
-  const result = dockerLambda({
-    event,
-    handler: `${fileName}.default`,
-    taskDir,
-    dockerImage: 'lambci/lambda:nodejs12.x',
-    dockerArgs: ['--name', name, '--network', 'host', '-d', ...dockerEnv, '-p'],
-    returnSpawnResult: true,
-    cleanUp: false
+  const port = await getPort()
+  const ps = execa('docker', [
+    'run',
+    ...[
+      'lambci/lambda:nodejs12.x',
+      `${fileName}.default`,
+      JSON.stringify(event)
+    ],
+    ...['-v', taskDir + ':/var/task'],
+    '--name',
+    name,
+    '--network',
+    'host',
+    ...dockerEnv,
+    '-p',
+    `${port}:9001`,
+    '-rm'
+  ])
+
+  ps.stderr.pipe(process.stderr)
+  ps.stdout.pipe(process.stdout)
+
+  return new Promise((res, rej) => {
+    ps.on('exit', code => {
+      spinner.start(`Worker ${fileName} exited with ${code}`)
+      res({ code })
+    })
   })
-
-  if (result.error || result.status !== 0) {
-    var err = result.error
-    if (!err) {
-      err = new Error(result.stdout || result.stderr)
-      err.code = result.status
-      err.stdout = result.stdout
-      err.stderr = result.stderr
-    }
-    throw err
-  }
-  spinner.succeed(`Queud worker ${fileName}`)
-
-  return {
-    name
-  }
 }
 
 module.exports = run
