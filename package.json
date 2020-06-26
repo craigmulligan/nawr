@@ -43,6 +43,7 @@
     "docker-lambda": "^0.15.3",
     "dotenv": "^8.2.0",
     "envfile": "^5.2.0",
+    "got": "^11.3.0",
     "isomorphic-fetch": "^2.2.1",
     "lodash": "^4.17.15",
     "loglevel": "^1.6.8",

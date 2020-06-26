@@ -1,24 +1,19 @@
-const fetch = require('isomorphic-fetch')
+const got = require('got')
 
 const run = async (fileName, event) => {
   console.log('calling fetch!')
-  const data = await fetch(
+  const { body } = await got.post(
     `http://localhost:3000/__nawr__/workers?name=${fileName}`,
     {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json'
+        'content-type': 'application/json'
       },
       body: JSON.stringify(event)
     }
-  ).then(r => {
-    if (!r.ok) {
-      throw Error(response.statusText)
-    }
-    return r.json()
-  })
+  )
 
-  return data
+  return body.data
 }
 
 module.exports = {
