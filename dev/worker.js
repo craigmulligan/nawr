@@ -5,6 +5,7 @@ const dockerLambda = require('docker-lambda')
 const { nanoid } = require('nanoid')
 const ora = require('ora')
 const { getEnv } = require('../init')
+const getPort = require('get-port')
 
 const run = async (fileName, event) => {
   const spinner = ora()
@@ -70,16 +71,21 @@ const run = async (fileName, event) => {
      You can view the logs with docker logs ${name}
    `)
 
-  const dockerEnv = Object.entries(env).reduce((acc, [k, v]) => {
-    return [...acc, '-e', `${k}=${v}`]
-  }, [])
+  // aws lambda invoke --endpoint http://localhost:9001 --no-sign-request \
+  // --function-name myfunction --payload '{}' output.json
+  const dockerEnv = Object.entries(env).reduce(
+    (acc, [k, v]) => {
+      return [...acc, '-e', `${k}=${v}`]
+    },
+    ['-e', 'DOCKER_LAMBDA_STAY_OPEN=1']
+  )
 
   const result = dockerLambda({
     event,
     handler: `${fileName}.default`,
     taskDir,
     dockerImage: 'lambci/lambda:nodejs12.x',
-    dockerArgs: ['--name', name, '--network', 'host', '-d', ...dockerEnv],
+    dockerArgs: ['--name', name, '--network', 'host', '-d', ...dockerEnv, '-p'],
     returnSpawnResult: true,
     cleanUp: false
   })
