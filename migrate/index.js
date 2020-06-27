@@ -1,15 +1,20 @@
 require('dotenv').config()
 const Storage = require('./storage')
 const Umzug = require('umzug')
+const compile = require('../build/webpack')
 const { api } = require('./api')
 
-const middleware = argv => {
+const middleware = async argv => {
   // because the client relies on `process.env.NAWR_SQL_CONNECTION`
   // you have to lazy load it so that users can run nawr init first (which populates ^)
   if (!argv) {
     argv = {}
   }
+  const sourceDir = process.cwd()
+
+  await compile(sourceDir, 'migrations')
   const client = require('../client')
+
   // init a transaction
   const transaction = client.transaction()
 
@@ -17,7 +22,7 @@ const middleware = argv => {
     storage: new Storage({ client, transaction }),
     migrations: {
       params: [transaction],
-      path: process.cwd() + '/migrations'
+      path: sourceDir + '/.nawr/migrations'
     },
     logging: false
   })
@@ -43,14 +48,14 @@ exports.middleware = middleware
 
 // Exported for programatic usage
 // Useful when using with unit tests
-module.exports.up = args => {
-  const argv = middleware(args)
+module.exports.up = async args => {
+  const argv = await middleware(args)
   return api.up.handler(argv)
 }
 
 // Exported for programatic usage
 // Useful when using with unit tests
-module.exports.down = args => {
-  const argv = middleware(args)
+module.exports.down = async args => {
+  const argv = await middleware(args)
   return api.down.handler(argv)
 }
