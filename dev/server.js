@@ -4,6 +4,7 @@ const { parse } = require('url')
 const resolveCwd = require('resolve-cwd')
 const next = require(resolveCwd('next'))
 const worker = require('./worker')
+const log = require('../log')
 
 module.exports = ({ sourceDir }) => {
   const app = next({ dev: true, dir: sourceDir })
@@ -25,6 +26,7 @@ module.exports = ({ sourceDir }) => {
           try {
             await worker(query.name, evt)
           } catch (err) {
+            log.error(err.message)
             res.writeHead(500, {
               'Content-Type': 'application/json',
               'X-Powered-By': 'nawr + next.js'

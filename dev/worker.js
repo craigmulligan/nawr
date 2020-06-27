@@ -1,63 +1,9 @@
-const webpack = require('webpack')
-const { promisify } = require('util')
-const compile = promisify(webpack)
 const id = require('../init/id')
 const { getEnv } = require('../init')
 const getPort = require('get-port')
 const execa = require('execa')
 const log = require('../log')
-
-const build = async fileName => {
-  const config = {
-    target: 'node',
-    entry: {
-      [fileName]: sourceDir + '/workers/' + fileName + '.js'
-    },
-    mode: 'production',
-    output: {
-      filename: '[name].js',
-      path: sourceDir + '/.nawr/workers',
-      libraryTarget: 'commonjs'
-    },
-    resolve: {
-      modules: [
-        sourceDir + '/node_modules',
-        __dirname + '/node_modules',
-        'node_modules'
-      ],
-      symlinks: true
-    },
-    module: {
-      rules: [
-        {
-          test: /\.m?js$/,
-          exclude: /(node_modules)/,
-          use: [
-            'cache-loader',
-            {
-              loader: 'babel-loader',
-              options: {
-                presets: ['@babel/preset-env']
-              }
-            }
-          ]
-        }
-      ]
-    }
-  }
-
-  const stats = await compile(config)
-  const info = stats.toJson()
-
-  if (stats.hasErrors()) {
-    log.error(info.errors)
-  }
-
-  if (stats.hasWarnings()) {
-    log.warn(info.warnings)
-  }
-  log.event(`Compiled worker: ${fileName}`)
-}
+const compile = require('../build/webpack')
 
 const run = async (fileName, event) => {
   const sourceDir = process.cwd()
@@ -65,7 +11,7 @@ const run = async (fileName, event) => {
   const env = await getEnv(sourceDir + '/.env')
 
   log.wait(`Compiling worker: ${fileName}`)
-  await build(fileName)
+  await compile(sourceDir, 'workers', `${fileName}.js`)
 
   log.wait(`Running worker: ${fileName}`)
   const name = id()
