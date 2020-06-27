@@ -2,14 +2,21 @@ const { promisify } = require('util')
 const webpack = require('webpack')
 const compile = promisify(webpack)
 const log = require('../log')
+const readdir = promisify(require('fs').readdir)
+const path = require('path')
 
 module.exports = async (sourceDir, dir, fileName) => {
   const entries = {}
+  const p = `/${sourceDir}` + `/${dir}/`
 
   if (fileName) {
-    entries[fileName] = `/${sourceDir}` + `/${dir}/` + fileName
+    entries[fileName] = p + fileName
   } else {
     // get all files in dir.
+    const fileNames = await readdir(p)
+    fileNames.forEach(f => {
+      entries[path.parse(f).name] = p + f
+    })
   }
 
   const config = {
@@ -58,5 +65,5 @@ module.exports = async (sourceDir, dir, fileName) => {
   if (stats.hasWarnings()) {
     log.warn(info.warnings)
   }
-  log.event(`Compiled worker: ${fileName ? fileName : '*'}`)
+  log.event(`Compiled ${dir}: ${fileName ? fileName : '*'}`)
 }
