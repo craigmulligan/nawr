@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 require('dotenv').config()
-const log = require('loglevel')
+const log = require('../log')
 const yargs = require('yargs')
 
 const argv = yargs
@@ -10,11 +10,6 @@ const argv = yargs
   .command(require('../dev'))
   .command(require('../build'))
   .demand(1, 'must provide a valid command')
-  .option('loglevel', {
-    alias: 'l',
-    description: 'set log-level',
-    default: 'info'
-  })
   .version()
   .help('h')
   .alias('h', 'help')
@@ -22,5 +17,3 @@ const argv = yargs
     log.error(err)
     process.exit(1)
   }).argv
-
-log.setLevel(argv.loglevel)

@@ -1,7 +1,6 @@
-const ora = require('ora')
 const nanoid = require('../id')
 const AWS = require('aws-sdk')
-const log = require('loglevel')
+const log = require('../../log')
 
 const ensureEnv = (required = [], optional = []) => {
   for (let key of required) {
@@ -21,7 +20,6 @@ class Stage {
   // base class
   constructor(id, engine) {
     this.id = id ? id : nanoid()
-    this.spinner = ora()
     this.engine = engine
   }
 
@@ -65,26 +63,24 @@ class Stage {
   }
 
   async create() {
-    this.spinner.start('Creating Database')
+    log.wait('Creating Database')
     try {
       this.connectionValues = await this._create(this.id)
-      this.spinner.succeed(
-        `Database created: ${this.connectionValues.resourceArn}`
-      )
+      log.ready(`Database created: ${this.connectionValues.resourceArn}`)
       return this.connectionValues
     } catch (err) {
-      this.spinner.fail(`Failed to create database: ${err.message}`)
+      log.error(`Failed to create database: ${err.message}`)
       throw err
     }
   }
 
   async wait() {
     try {
-      this.spinner.start(`Waiting on database to be available`)
+      log.wait(`Waiting on database to be available`)
       await this._wait()
-      this.spinner.succeed(`Database is available`)
+      log.ready(`Database is available`)
     } catch (err) {
-      this.spinner.fail(`Database is not available`)
+      log.error(`Database is not available`)
       throw err
     }
 

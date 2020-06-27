@@ -23,7 +23,7 @@ module.exports = ({ sourceDir }) => {
         req.on('end', async () => {
           const evt = JSON.parse(body)
           try {
-            await worker(query.name, evt).then(console.log)
+            await worker(query.name, evt)
           } catch (err) {
             res.writeHead(500, {
               'Content-Type': 'application/json',

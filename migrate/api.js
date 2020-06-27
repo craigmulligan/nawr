@@ -1,5 +1,4 @@
-const log = require('loglevel')
-const ora = require('ora')
+const log = require('../log')
 
 const table = (migrations, prefix) => {
   return migrations
@@ -22,14 +21,13 @@ const commit = transaction => {
       return
     }
 
-    const spinner = ora()
     try {
-      spinner.start(`Commiting ${migrations.length} migrations`)
+      log.wait(`Commiting ${migrations.length} migrations`)
       await transaction.commit()
-      spinner.succeed(`Commited ${migrations.length} migrations`)
+      log.ready(`Commited ${migrations.length} migrations`)
       log.info(table(migrations, '✔'))
     } catch (err) {
-      spinner.succeed(`Failed to commit ${migrations.length} migrations`)
+      log.error(`Failed to commit ${migrations.length} migrations`)
       log.info(table(migrations, '✖'))
       throw err
     }
