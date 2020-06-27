@@ -1,8 +1,22 @@
+const stages = require('./init/stage')
 const fetch = require('node-fetch').default
+const AWS = require('aws-sdk')
 
-const run = async (fileName, event) => {
+if (!process.env.NAWR_WORKER_CONNECTION) {
+  throw new Error(
+    `NAWR_WORKER_CONNECTION is not set: You may need to run: $ nawr init`
+  )
+}
+
+const connectionValue = JSON.parse(process.env.NAWR_WORKER_CONNECTION)
+const { functions, stage } = connectionValue
+stages[stage].setCredentials()
+
+const lambda = new AWS.Lambda()
+
+const run = async (name, event) => {
   const data = await fetch(
-    `http://localhost:3000/__nawr__/workers?name=${fileName}`,
+    `http://localhost:3000/__nawr__/workers?name=${name}`,
     {
       method: 'POST',
       headers: {
@@ -24,6 +38,15 @@ const run = async (fileName, event) => {
   return data
 }
 
+const invoke = async (name, event) => {
+  var params = {
+    FunctionName: functions[name],
+    InvokeArgs: JSON.stringify(event)
+  }
+
+  await lambda.invokeAsync(params).promise()
+}
+
 module.exports = {
-  run
+  run: stage === 'development' ? run : invoke
 }
