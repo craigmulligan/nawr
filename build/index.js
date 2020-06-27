@@ -1,0 +1,20 @@
+// cli module
+const init = require('../init')
+const { up } = require('../migrate')
+const resolveCwd = require('resolve-cwd')
+const build = require(resolveCwd('next/dist/build')).default
+const { resolve } = require('path')
+
+exports.command = 'build'
+exports.describe = 'Creates a db runs migrations and builds server'
+exports.builder = init.builder
+
+exports.handler = async argv => {
+  // init db
+  await init.handler(argv)
+  // migrate
+  await up()
+  // next build
+  const dir = resolve(argv._[1] || '.')
+  await build(dir)
+}
