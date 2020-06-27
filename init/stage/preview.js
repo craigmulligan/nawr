@@ -1,6 +1,8 @@
 const Stage = require('./base')
 const RDS = require('./RDS')
+const Lambda = require('./lambda')
 const pkg = require('../../package.json')
+const log = require('../../log')
 
 class PreviewStage extends Stage {
   constructor(id, engine) {
@@ -8,9 +10,10 @@ class PreviewStage extends Stage {
 
     this.constructor.setCredentials()
     this.rds = new RDS()
+    this.lambda = new Lambda()
   }
 
-  _create() {
+  async _create() {
     const opts = {
       ScalingConfiguration: {
         AutoPause: true,
@@ -30,8 +33,19 @@ class PreviewStage extends Stage {
   }
 
   async _wait() {
-    await this.rds.waitOnAvailable(this.connectionValues.resourceArn)
+    // await this.rds.waitOnAvailable(this.connectionValues.resourceArn)
     return this.connectionValues
+  }
+
+  async createWorkers(env) {
+    const path = process.cwd() + '/.nawr/workers/index.js'
+    log.wait('creating function')
+    const fnName = await this.lambda.createFunction(this.id, path, env)
+
+    return {
+      index: fnName
+    }
+    log.event('function created')
   }
 }
 
