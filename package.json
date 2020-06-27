@@ -38,6 +38,7 @@
     "aws-sdk": "^2.680.0",
     "babel-loader": "^8.1.0",
     "cache-loader": "^4.1.0",
+    "chalk": "^4.1.0",
     "data-api-client": "^1.0.1",
     "docker-compose": "^0.23.4",
     "dotenv": "^8.2.0",
