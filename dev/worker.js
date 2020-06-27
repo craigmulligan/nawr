@@ -3,10 +3,10 @@ const { promisify } = require('util')
 const compile = promisify(webpack)
 const dockerLambda = require('docker-lambda')
 const id = require('../init/id')
-const ora = require('ora')
 const { getEnv } = require('../init')
 const getPort = require('get-port')
 const execa = require('execa')
+const log = require('../log')
 
 const run = async (fileName, event) => {
   const spinner = ora()
@@ -52,20 +52,20 @@ const run = async (fileName, event) => {
     }
   }
 
-  spinner.start(`Compiling worker ${fileName}`)
+  log.wait(`Compiling worker: ${fileName}`)
   const stats = await compile(config)
   const info = stats.toJson()
 
   if (stats.hasErrors()) {
-    console.error(info.errors)
+    log.error(info.errors)
   }
 
   if (stats.hasWarnings()) {
-    console.warn(info.warnings)
+    log.warn(info.warnings)
   }
-  spinner.succeed(`Compild worker ${fileName}`)
+  log.event(`Compiled worker: ${fileName}`)
 
-  spinner.start(`Running worker ${fileName}`)
+  log.wait(`Running worker: ${fileName}`)
   const name = id()
   const port = await getPort()
 
@@ -97,19 +97,19 @@ const run = async (fileName, event) => {
       JSON.stringify(event)
     ]
   ]
-
   const ps = execa('docker', args)
 
+  // TODO prefix the output with
+  // the worker names
   ps.stderr.pipe(process.stderr)
   ps.stdout.pipe(process.stdout)
 
   ps.on('exit', code => {
-    console.log({ code })
-    const method = code == 0 ? 'succeed' : 'failed'
-    spinner[method](`Worker ${fileName} exited with ${code}`)
+    const method = code == 0 ? 'event' : 'error'
+    log.event(`Ran worker: ${fileName}`)
   })
 
-  return
+  return name
 }
 
 module.exports = run
