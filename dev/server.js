@@ -9,7 +9,7 @@ const dev = process.env.NODE_ENV !== 'production'
 const sourceDir = process.cwd()
 
 module.exports = () => {
-  const app = next({ dev, dir: sourceDir })
+  const app = next({ dev: true, dir: sourceDir })
   const handle = app.getRequestHandler()
 
   return app.prepare().then(() => {
