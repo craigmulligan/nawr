@@ -25,16 +25,14 @@ module.exports = () => {
         })
         req.on('end', async () => {
           const evt = JSON.parse(body)
-          console.log(evt)
           try {
             await worker(query.name, evt).then(console.log)
           } catch (err) {
-            console.log('ERRR', err)
             res.writeHead(500, {
               'Content-Type': 'application/json',
               'X-Powered-By': 'nawr + next.js'
             })
-            res.write(JSON.stringify({ error: err }))
+            res.write(JSON.stringify({ error: err.message }))
             return res.end()
           }
 
