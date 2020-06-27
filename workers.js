@@ -1,8 +1,7 @@
-const got = require('got')
+const fetch = require('node-fetch').default
 
 const run = async (fileName, event) => {
-  console.log('calling fetch!')
-  const { body } = await got.post(
+  const data = await fetch(
     `http://localhost:3000/__nawr__/workers?name=${fileName}`,
     {
       method: 'POST',
@@ -12,8 +11,17 @@ const run = async (fileName, event) => {
       body: JSON.stringify(event)
     }
   )
+    .then(res => {
+      if (!res.ok) {
+        throw new Error(res.statusText)
+      }
+      return res
+    })
+    .then(res => {
+      return res.json()
+    })
 
-  return body.data
+  return data
 }
 
 module.exports = {
