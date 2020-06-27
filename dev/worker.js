@@ -104,6 +104,7 @@ const run = async (fileName, event) => {
   ps.stdout.pipe(process.stdout)
 
   ps.on('exit', code => {
+    console.log({ code })
     const method = code == 0 ? 'succeed' : 'failed'
     spinner[method](`Worker ${fileName} exited with ${code}`)
   })
