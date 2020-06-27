@@ -7,11 +7,7 @@ const getPort = require('get-port')
 const execa = require('execa')
 const log = require('../log')
 
-const run = async (fileName, event) => {
-  const sourceDir = process.cwd()
-  const taskDir = sourceDir + '/.nawr/workers'
-  const env = await getEnv(sourceDir + '/.env')
-
+const build = async fileName => {
   const config = {
     target: 'node',
     entry: {
@@ -50,7 +46,6 @@ const run = async (fileName, event) => {
     }
   }
 
-  log.wait(`Compiling worker: ${fileName}`)
   const stats = await compile(config)
   const info = stats.toJson()
 
@@ -62,6 +57,15 @@ const run = async (fileName, event) => {
     log.warn(info.warnings)
   }
   log.event(`Compiled worker: ${fileName}`)
+}
+
+const run = async (fileName, event) => {
+  const sourceDir = process.cwd()
+  const taskDir = sourceDir + '/.nawr/workers'
+  const env = await getEnv(sourceDir + '/.env')
+
+  log.wait(`Compiling worker: ${fileName}`)
+  await build(fileName)
 
   log.wait(`Running worker: ${fileName}`)
   const name = id()
