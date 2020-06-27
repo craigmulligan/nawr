@@ -2,7 +2,7 @@ const webpack = require('webpack')
 const { promisify } = require('util')
 const compile = promisify(webpack)
 const dockerLambda = require('docker-lambda')
-const { nanoid } = require('nanoid')
+const id = require('../init/id')
 const ora = require('ora')
 const { getEnv } = require('../init')
 const getPort = require('get-port')
@@ -66,44 +66,49 @@ const run = async (fileName, event) => {
   spinner.succeed(`Compild worker ${fileName}`)
 
   spinner.start(`Running worker ${fileName}`)
-  const name = nanoid()
+  const name = id()
+  const port = await getPort()
+
   // aws lambda invoke --endpoint http://localhost:9001 --no-sign-request \
   // --function-name myfunction --payload '{}' output.json
   const dockerEnv = Object.entries(env).reduce(
     (acc, [k, v]) => {
       return [...acc, '-e', `${k}=${v}`]
     },
-    ['-e', 'AWS_LAMBDA_FUNCTION_TIMEOUT=900']
+    [
+      '-e',
+      'AWS_LAMBDA_FUNCTION_TIMEOUT=900',
+      '-e',
+      `DOCKER_LAMBDA_RUNTIME_PORT=${port}`
+    ]
   )
 
-  const port = await getPort()
-  const ps = execa('docker', [
+  const args = [
     'run',
-    ...[
-      'lambci/lambda:nodejs12.x',
-      `${fileName}.default`,
-      JSON.stringify(event)
-    ],
     ...['-v', taskDir + ':/var/task'],
     '--name',
     name,
     '--network',
     'host',
     ...dockerEnv,
-    '-p',
-    `${port}:9001`,
-    '-rm'
-  ])
+    ...[
+      'lambci/lambda:nodejs12.x',
+      `${fileName}.default`,
+      JSON.stringify(event)
+    ]
+  ]
+
+  const ps = execa('docker', args)
 
   ps.stderr.pipe(process.stderr)
   ps.stdout.pipe(process.stdout)
 
-  return new Promise((res, rej) => {
-    ps.on('exit', code => {
-      spinner.start(`Worker ${fileName} exited with ${code}`)
-      res({ code })
-    })
+  ps.on('exit', code => {
+    const method = code == 0 ? 'succeed' : 'failed'
+    spinner[method](`Worker ${fileName} exited with ${code}`)
   })
+
+  return
 }
 
 module.exports = run

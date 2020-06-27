@@ -2,7 +2,7 @@ version: '3.1'
 
 services:
   proxy:
-    image: koxudaxi/local-data-api:latest
+    image: koxudaxi/local-data-api:0.4.13
     container_name: nawr-proxy
     restart: always
     environment:
