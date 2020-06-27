@@ -1,7 +1,6 @@
 const webpack = require('webpack')
 const { promisify } = require('util')
 const compile = promisify(webpack)
-const dockerLambda = require('docker-lambda')
 const id = require('../init/id')
 const { getEnv } = require('../init')
 const getPort = require('get-port')
@@ -9,7 +8,6 @@ const execa = require('execa')
 const log = require('../log')
 
 const run = async (fileName, event) => {
-  const spinner = ora()
   const sourceDir = process.cwd()
   const taskDir = sourceDir + '/.nawr/workers'
   const env = await getEnv(sourceDir + '/.env')
@@ -106,7 +104,7 @@ const run = async (fileName, event) => {
 
   ps.on('exit', code => {
     const method = code == 0 ? 'event' : 'error'
-    log.event(`Ran worker: ${fileName}`)
+    log[method](`Ran worker: ${fileName}`)
   })
 
   return name

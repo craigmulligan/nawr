@@ -8,10 +8,11 @@ exports.describe = 'run next.js dev server'
 exports.builder = init.builder
 
 exports.handler = async argv => {
+  const dir = process.cwd()
   // init db
   await init.handler(argv)
   // migrate
   await up()
   // run server
-  return server(argv)
+  return server({ ...argv, sourceDir: dir })
 }
