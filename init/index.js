@@ -34,18 +34,13 @@ const init = async ({ engine, stage, id }) => {
   // gets .env contents
   const env = await getEnv(envFilePath)
 
-  console.log({ stage })
-  const functions = await db.createWorkers(env)
+  const NAWR_WORKER_CONNECTION = await db.createWorkers(env)
 
   // set .env contents with connectionValues
   try {
     await setEnv(envFilePath, {
       ...env,
-      NAWR_WORKER_CONNECTION: JSON.stringify({
-        stage,
-        id,
-        functions
-      })
+      NAWR_WORKER_CONNECTION
       // NAWR_SQL_CONNECTION: JSON.stringify({
       // ...connectionValues,
       // version: pkg.version,

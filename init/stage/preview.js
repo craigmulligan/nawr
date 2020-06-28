@@ -3,6 +3,9 @@ const RDS = require('./RDS')
 const Lambda = require('./lambda')
 const pkg = require('../../package.json')
 const log = require('../../log')
+const { promisify } = require('util')
+const readdir = promisify(require('fs').readdir)
+const path = require('path')
 
 class PreviewStage extends Stage {
   constructor(id, engine) {
@@ -38,14 +41,40 @@ class PreviewStage extends Stage {
   }
 
   async createWorkers(env) {
-    const path = process.cwd() + '/.nawr/workers/index.js'
-    log.wait('creating function')
-    const fnName = await this.lambda.createFunction(this.id, path, env)
+    const workersDir = process.cwd() + '/.nawr/workers'
+    const id = this.id
+    const files = await readdir(workersDir)
 
-    return {
-      index: fnName
-    }
-    log.event('function created')
+    const fns = files.map(p => {
+      const name = path.parse(p).name
+      return [name, `workers-${name}-${id}`, `${workersDir}/${p}`]
+    })
+
+    const fnMap = fns.reduce((acc, [key, value]) => {
+      return {
+        ...acc,
+        [key]: value
+      }
+    }, {})
+
+    const NAWR_WORKER_CONNECTION = JSON.stringify({
+      stage: 'preview',
+      id,
+      functions: fnMap
+    })
+
+    log.wait('creating functions')
+    await Promise.all(
+      fns.map(([name, lambdaName, p]) => {
+        return this.lambda.createFunction(name, lambdaName, p, {
+          ...env,
+          NAWR_WORKER_CONNECTION
+        })
+      })
+    )
+
+    log.event('functions created')
+    return NAWR_WORKER_CONNECTION
   }
 }
 

@@ -2,7 +2,6 @@ const AWS = require('aws-sdk')
 const { promisify } = require('util')
 const fs = require('fs')
 const archiver = require('archiver')
-const klaw = require('klaw')
 const path = require('path')
 const os = require('os')
 const stat = promisify(fs.stat)
@@ -27,7 +26,7 @@ class Lambda {
       output.on('close', () => {
         const contents = fs.readFileSync(tmpZipFile)
         fs.unlinkSync(tmpZipFile)
-        resolve([file.name, contents])
+        resolve(contents)
       })
       archive.pipe(output)
 
@@ -40,25 +39,25 @@ class Lambda {
     })
   }
 
-  async createFunction(id, source, env) {
-    const [name, zipFile] = await this._zip(source)
-    const fnName = `workers-${name}-${id}`
+  async createFunction(name, lambdaName, p, env) {
+    console.log(name, lambdaName, p)
+    const zipFile = await this._zip(p)
     const params = {
       Code: {
         ZipFile: zipFile
       },
-      FunctionName: fnName /* required */,
+      FunctionName: lambdaName /* required */,
       Handler: `${name}.default` /* required */,
       // TODO create role.
-      Role: 'arn:aws:iam::917491943275:role/niks' /* required */,
+      Role: 'arn:aws:iam::917491943275:role/nawr' /* required */,
       Runtime: 'nodejs12.x',
       Description: 'nawr async worker',
       Environment: {
         Variables: env
-      }
+      },
+      Timeout: 900
     }
-    await this.lambda.createFunction(params).promise()
-    return fnName
+    return this.lambda.createFunction(params).promise()
   }
 }
 
