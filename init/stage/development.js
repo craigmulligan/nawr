@@ -8,7 +8,7 @@ const LOCAL_CONNECTIONS = {
   secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:dummy',
   database: 'master',
   options: {
-    endpoint: 'http://127.0.0.7:8080'
+    endpoint: 'http://localhost:8080'
   }
 }
 
