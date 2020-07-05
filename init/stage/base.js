@@ -52,20 +52,20 @@ class Stage {
     }
   }
 
-  _create() {
+  _createDB() {
     // subclasses override this
     return Promise.resolve()
   }
 
-  _wait() {
+  _waitDB() {
     // subclasses override this
     return Promise.resolve()
   }
 
-  async create() {
+  async createDB() {
     log.wait('Creating Database')
     try {
-      this.connectionValues = await this._create(this.id)
+      this.connectionValues = await this._createDB(this.id)
       log.ready(`Database created: ${this.connectionValues.resourceArn}`)
       return this.connectionValues
     } catch (err) {
@@ -74,10 +74,10 @@ class Stage {
     }
   }
 
-  async wait() {
+  async waitDB() {
     try {
       log.wait(`Waiting on database to be available`)
-      await this._wait()
+      await this._waitDB()
       log.ready(`Database is available`)
     } catch (err) {
       log.error(`Database is not available`)
@@ -87,8 +87,15 @@ class Stage {
     return this.connectionValues
   }
 
-  async createWorkers() {
-    // noop
+  async createWorkers(env) {
+    log.wait('Creating Workers')
+    try {
+      this.workersConnectionValues = await this._createWorkers(this.id, env)
+      return this.workersConnectionValues
+    } catch (err) {
+      log.error(`Failed to create workers: ${err.message}`)
+      throw err
+    }
   }
 }
 

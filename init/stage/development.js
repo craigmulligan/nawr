@@ -1,6 +1,7 @@
 const Stage = require('./base')
 const compose = require('docker-compose')
 const path = require('path')
+const compile = require('../../build/webpack')
 
 // https://github.com/koxudaxi/local-data-api
 const LOCAL_CONNECTIONS = {
@@ -27,7 +28,7 @@ class DevelopmentState extends Stage {
     }
   }
 
-  _create() {
+  _createDB() {
     return compose
       .upAll({
         cwd: path.join(__dirname, 'docker'),
@@ -45,8 +46,9 @@ class DevelopmentState extends Stage {
       )
   }
 
-  async createWorkers() {
-    return JSON.stringify(NAWR_WORKER_CONNECTION)
+  async _createWorkers() {
+    await compile(process.cwd(), 'workers')
+    return NAWR_WORKER_CONNECTION
   }
 }
 
