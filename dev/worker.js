@@ -11,7 +11,7 @@ const run = async (fileName, event) => {
   const env = await getEnv(sourceDir + '/.env')
 
   log.wait(`Compiling worker: ${fileName}`)
-  await compile(sourceDir, 'workers', `${fileName}.js`)
+  await compile(sourceDir, 'workers', `${fileName}`)
 
   log.wait(`Running worker: ${fileName}`)
   const name = id()
