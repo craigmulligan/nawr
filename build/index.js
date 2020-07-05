@@ -2,6 +2,7 @@
 const init = require('../init')
 const { up } = require('../migrate')
 const resolveCwd = require('resolve-cwd')
+const dotenv = require('dotenv')
 const build = require(resolveCwd('next/dist/build')).default
 const { resolve } = require('path')
 
@@ -13,7 +14,8 @@ exports.handler = async argv => {
   const dir = resolve(argv._[1] || '.')
   // init db
   await init.handler(argv)
-  // migrate
+  // load env + migrate
+  dotenv.config()
   await up()
   // next build
   await build(dir)
