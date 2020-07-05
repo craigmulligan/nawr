@@ -1,6 +1,6 @@
-const stages = require('./init/stage')
 const fetch = require('node-fetch').default
 const AWS = require('aws-sdk')
+const { getCredentials, setCredentials } = require('./init/credentials')
 
 if (!process.env.NAWR_WORKER_CONNECTION) {
   throw new Error(
@@ -10,8 +10,7 @@ if (!process.env.NAWR_WORKER_CONNECTION) {
 
 const connectionValue = JSON.parse(process.env.NAWR_WORKER_CONNECTION)
 const { functions, stage, options } = connectionValue
-
-stages[stage].setCredentials()
+setCredentials(stage)
 
 const lambda = new AWS.Lambda()
 

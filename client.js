@@ -3,7 +3,7 @@
 const dataApi = require('data-api-client')
 const { Agent } = require('http')
 const { URL } = require('url')
-const stages = require('./init/stage')
+const { setCredentials } = require('./init/credentials')
 
 const isHttp = options => {
   if (options && options.endpoint) {
@@ -28,7 +28,7 @@ if (!process.env.NAWR_SQL_CONNECTION) {
 const connectionValue = JSON.parse(process.env.NAWR_SQL_CONNECTION)
 const { secretArn, resourceArn, database, options, stage } = connectionValue
 // ensures the aws-sdk is setup properly
-stages[stage].setCredentials()
+setCredentials(stage)
 
 const client = dataApi({
   resourceArn,
