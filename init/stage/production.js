@@ -1,8 +1,8 @@
-const Stage = require('./base')
+const Preview = require('./preview')
 const RDS = require('./RDS')
 const pkg = require('../../package.json')
 
-class ProductionStage extends Stage {
+class ProductionStage extends Preview {
   constructor(id, engine) {
     if (!id) {
       throw new Error('In production stage a database an --id must be provided')
@@ -14,7 +14,7 @@ class ProductionStage extends Stage {
     this.rds = new RDS()
   }
 
-  _create() {
+  _createDB() {
     const opts = {
       ScalingConfiguration: {
         AutoPause: false
@@ -34,11 +34,6 @@ class ProductionStage extends Stage {
     }
 
     return this.rds.createDB(this.id, opts)
-  }
-
-  async _wait() {
-    await this.rds.waitOnAvailable(this.connectionValues.resourceArn)
-    return this.connectionValues
   }
 }
 

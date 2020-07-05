@@ -23,23 +23,27 @@ const setEnv = async (envFilePath, env) => {
 }
 
 const init = async ({ engine, stage, id }) => {
-  const db = new stages[stage](id, 'aurora-' + engine)
-  const connectionValues = await db.create()
+  const infra = new stages[stage](id, 'aurora-' + engine)
+  const connectionValues = await infra.createDB()
   // // wait on available
-  await db.wait()
+  await infra.waitDB()
 
   const CWD = process.cwd()
   const envFilePath = path.join(CWD, '.env')
 
   // gets .env contents
   const env = await getEnv(envFilePath)
-  const NAWR_WORKER_CONNECTION = await db.createWorkers(env)
+
+  const workersConnectionValues = await infra.createWorkers({
+    ...env,
+    NAWR_SQL_CONNECTION: JSON.string(connectionValues)
+  })
 
   // set .env contents with connectionValues
   try {
     await setEnv(envFilePath, {
       ...env,
-      NAWR_WORKER_CONNECTION,
+      NAWR_WORKER_CONNECTION: JSON.stringify(workersConnectionValues),
       NAWR_SQL_CONNECTION: JSON.stringify({
         ...connectionValues,
         version: pkg.version,

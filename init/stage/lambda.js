@@ -5,7 +5,6 @@ const archiver = require('archiver')
 const path = require('path')
 const os = require('os')
 const stat = promisify(fs.stat)
-const log = require('../../log')
 
 class Lambda {
   constructor() {
@@ -85,10 +84,9 @@ class Lambda {
   }
 
   async createFunction(name, lambdaName, p, env) {
+    console.log(env)
     const Role = await this.createRole()
-    log.event(`Zipping worker: ${name}`)
     const zipFile = await this._zip(p)
-    log.event(`Zipped worker: ${name}`)
 
     const params = {
       Code: {

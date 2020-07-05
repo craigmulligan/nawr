@@ -7,6 +7,7 @@ const { promisify } = require('util')
 const readdir = promisify(require('fs').readdir)
 const path = require('path')
 const nanoId = require('../id')
+const compile = require('../../build/webpack')
 
 class PreviewStage extends Stage {
   constructor(id, engine) {
@@ -36,14 +37,14 @@ class PreviewStage extends Stage {
     return this.rds.createDB(this.id, opts)
   }
 
-  async _wait() {
-    // await this.rds.waitOnAvailable(this.connectionValues.resourceArn)
+  async _waitDB() {
+    await this.rds.waitOnAvailable(this.connectionValues.resourceArn)
     return this.connectionValues
   }
 
-  async createWorkers(env) {
+  async _createWorkers(id, env) {
     const workersDir = process.cwd() + '/.nawr/workers'
-    const id = this.id
+    await compile(process.cwd(), 'workers')
     // All lambdas should have a unique name
     // even if an id is provided we suffix with a unique id
     const uuid = nanoId()
@@ -61,24 +62,24 @@ class PreviewStage extends Stage {
       }
     }, {})
 
-    const NAWR_WORKER_CONNECTION = JSON.stringify({
+    const workersConnectionValues = {
       stage: 'preview',
       id,
       functions: fnMap
-    })
+    }
 
     log.wait('creating functions')
     await Promise.all(
       fns.map(([name, lambdaName, p]) => {
         return this.lambda.createFunction(name, lambdaName, p, {
           ...env,
-          NAWR_WORKER_CONNECTION
+          NAWR_WORKER_CONNECTION: JSON.stringify(workersConnectionValues)
         })
       })
     )
 
     log.event('functions created')
-    return NAWR_WORKER_CONNECTION
+    return workersConnectionValues
   }
 }
 
