@@ -36,7 +36,7 @@ const init = async ({ engine, stage, id }) => {
 
   const workersConnectionValues = await infra.createWorkers({
     ...env,
-    NAWR_SQL_CONNECTION: JSON.string(connectionValues)
+    NAWR_SQL_CONNECTION: JSON.stringify(connectionValues)
   })
 
   // set .env contents with connectionValues
