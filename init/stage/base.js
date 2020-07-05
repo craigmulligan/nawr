@@ -47,6 +47,7 @@ class Stage {
     log.wait('Creating Workers')
     try {
       this.workersConnectionValues = await this._createWorkers(this.id, env)
+      log.ready('Workers are ready')
       return this.workersConnectionValues
     } catch (err) {
       log.error(`Failed to create workers: ${err.message}`)
