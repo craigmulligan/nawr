@@ -86,6 +86,10 @@ class Stage {
 
     return this.connectionValues
   }
+
+  async createWorkers() {
+    // noop
+  }
 }
 
 module.exports = Stage
