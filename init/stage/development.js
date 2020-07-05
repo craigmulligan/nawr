@@ -8,8 +8,15 @@ const LOCAL_CONNECTIONS = {
   secretArn: 'arn:aws:secretsmanager:us-east-1:123456789012:secret:dummy',
   database: 'master',
   options: {
-    endpoint: 'http://127.0.0.7:8080'
+    endpoint: 'http://localhost:8080'
   }
+}
+
+const NAWR_WORKER_CONNECTION = {
+  options: {
+    endpoint: 'http://localhost:3000/__nawr__/workers'
+  },
+  stage: 'development'
 }
 
 class DevelopmentState extends Stage {
@@ -36,6 +43,10 @@ class DevelopmentState extends Stage {
           throw err
         }
       )
+  }
+
+  async createWorkers() {
+    return JSON.stringify(NAWR_WORKER_CONNECTION)
   }
 }
 

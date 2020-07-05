@@ -9,22 +9,20 @@ if (!process.env.NAWR_WORKER_CONNECTION) {
 }
 
 const connectionValue = JSON.parse(process.env.NAWR_WORKER_CONNECTION)
-const { functions, stage } = connectionValue
+const { functions, stage, options } = connectionValue
+
 stages[stage].setCredentials()
 
 const lambda = new AWS.Lambda()
 
 const run = async (name, event) => {
-  const data = await fetch(
-    `http://localhost:3000/__nawr__/workers?name=${name}`,
-    {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify(event)
-    }
-  )
+  const data = await fetch(`${options.endpoint}?name=${name}`, {
+    method: 'POST',
+    headers: {
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify(event)
+  })
     .then(res => {
       if (!res.ok) {
         throw new Error(res.statusText)

@@ -5,6 +5,7 @@ const archiver = require('archiver')
 const path = require('path')
 const os = require('os')
 const stat = promisify(fs.stat)
+const log = require('../../log')
 
 class Lambda {
   constructor() {
@@ -12,9 +13,7 @@ class Lambda {
   }
 
   async _zip(source) {
-    console.log('=> Zipping repo. This might take up to 30 seconds')
     const file = path.parse(source)
-    console.log(file)
     const stats = await stat(source)
 
     const tmpZipFile = path.join(os.tmpdir(), +new Date() + '.zip')
@@ -40,15 +39,17 @@ class Lambda {
   }
 
   async createFunction(name, lambdaName, p, env) {
-    console.log(name, lambdaName, p)
+    log.event(`Zipping worker: ${name}`)
     const zipFile = await this._zip(p)
+    log.event(`Zipped worker: ${name}`)
+
     const params = {
       Code: {
         ZipFile: zipFile
       },
       FunctionName: lambdaName /* required */,
       Handler: `${name}.default` /* required */,
-      // TODO create role.
+      // TODO create execution role.
       Role: 'arn:aws:iam::917491943275:role/nawr' /* required */,
       Runtime: 'nodejs12.x',
       Description: 'nawr async worker',

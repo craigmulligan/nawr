@@ -6,6 +6,7 @@ const log = require('../../log')
 const { promisify } = require('util')
 const readdir = promisify(require('fs').readdir)
 const path = require('path')
+const nanoId = require('../id')
 
 class PreviewStage extends Stage {
   constructor(id, engine) {
@@ -43,11 +44,14 @@ class PreviewStage extends Stage {
   async createWorkers(env) {
     const workersDir = process.cwd() + '/.nawr/workers'
     const id = this.id
+    // All lambdas should have a unique name
+    // even if an id is provided we suffix with a unique id
+    const uuid = nanoId()
     const files = await readdir(workersDir)
 
     const fns = files.map(p => {
       const name = path.parse(p).name
-      return [name, `workers-${name}-${id}`, `${workersDir}/${p}`]
+      return [name, `workers-${name}-${id}-${uuid}`, `${workersDir}/${p}`]
     })
 
     const fnMap = fns.reduce((acc, [key, value]) => {

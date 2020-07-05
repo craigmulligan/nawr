@@ -55,6 +55,7 @@ module.exports = async (sourceDir, dir, fileName) => {
     }
   }
 
+  log.event(`Compiling ${dir}: ${fileName ? fileName : '*'}`)
   const stats = await compile(config)
   const info = stats.toJson()
 
