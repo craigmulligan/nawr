@@ -48,7 +48,7 @@ module.exports = ({ sourceDir }) => {
       }
     }).listen(3000, err => {
       if (err) throw err
-      console.ready('> Ready on http://localhost:3000')
+      log.ready('> Ready on http://localhost:3000')
     })
   })
 }
