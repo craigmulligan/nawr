@@ -24,7 +24,7 @@ module.exports = () => {
             'arn:aws:secretsmanager:us-east-1:123456789012:secret:dummy',
           database: 'master',
           stage: 'development',
-          options: { endpoint: 'http://127.0.0.7:8080' },
+          options: { endpoint: 'http://localhost:8080' },
           version: version
         })
 

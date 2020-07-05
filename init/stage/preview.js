@@ -13,7 +13,6 @@ class PreviewStage extends Stage {
   constructor(id, engine) {
     super(id, engine)
 
-    this.constructor.setCredentials()
     this.rds = new RDS()
     this.lambda = new Lambda()
   }

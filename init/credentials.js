@@ -1,4 +1,5 @@
 const AWS = require('aws-sdk')
+const log = require('../log')
 const ensureEnv = (required = [], optional = []) => {
   for (let key of required) {
     if (!process.env[key]) {

@@ -1,11 +1,13 @@
 const nanoid = require('../id')
 const log = require('../../log')
+const fs = require('fs')
 
 class Stage {
   // base class
-  constructor(id, engine) {
+  constructor(id, engine, dir) {
     this.id = id ? id : nanoid()
     this.engine = engine
+    this.dir = dir
   }
 
   _createDB() {
@@ -44,6 +46,10 @@ class Stage {
   }
 
   async createWorkers(env) {
+    if (!fs.existsSync(this.dir + '/workers')) {
+      return null
+    }
+
     log.wait('Creating Workers')
     try {
       this.workersConnectionValues = await this._createWorkers(this.id, env)
@@ -56,4 +62,5 @@ class Stage {
   }
 }
 
+module.exports = Stage
 module.exports = Stage
