@@ -19,11 +19,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": [
-    "serverless",
-    "next.js",
-    "sql"
-  ],
+  "keywords": ["serverless", "next.js", "sql"],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {

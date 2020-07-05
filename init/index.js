@@ -24,14 +24,14 @@ const setEnv = async (envFilePath, env) => {
 }
 
 const init = async ({ engine, stage, id }) => {
+  const dir = process.cwd()
   setCredentials(stage)
-  const infra = new stages[stage](id, 'aurora-' + engine)
+  const infra = new stages[stage](id, 'aurora-' + engine, dir)
   const connectionValues = await infra.createDB()
   // // wait on available
   await infra.waitDB()
 
-  const CWD = process.cwd()
-  const envFilePath = path.join(CWD, '.env')
+  const envFilePath = path.join(dir, '.env')
 
   // gets .env contents
   const env = await getEnv(envFilePath)

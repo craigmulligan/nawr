@@ -42,11 +42,11 @@ class PreviewStage extends Stage {
   }
 
   async _createWorkers(id, env) {
-    const workersDir = process.cwd() + '/.nawr/workers'
-    await compile(process.cwd(), 'workers')
+    await compile(this.dir, 'workers')
     // All lambdas should have a unique name
     // even if an id is provided we suffix with a unique id
     const uuid = nanoId()
+    const workersDir = this.dir + '/.nawr/workers'
     const files = await readdir(workersDir)
 
     const fns = files.map(p => {

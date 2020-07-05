@@ -40,7 +40,7 @@ class DevelopmentState extends Stage {
   }
 
   async _createWorkers() {
-    await compile(process.cwd(), 'workers')
+    await compile(this.dir, 'workers')
     return NAWR_WORKER_CONNECTION
   }
 }
