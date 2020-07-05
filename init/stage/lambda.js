@@ -84,7 +84,6 @@ class Lambda {
   }
 
   async createFunction(name, lambdaName, p, env) {
-    console.log(env)
     const Role = await this.createRole()
     const zipFile = await this._zip(p)
 

@@ -126,9 +126,20 @@ class RDS {
 
   async waitOnAvailable(resourceArn) {
     let status = null
+    let failures = 0
 
     while (status !== 'available') {
-      status = await this.getDBStatus(resourceArn)
+      try {
+        status = await this.getDBStatus(resourceArn)
+      } catch (err) {
+        // we don't crash the whole
+        // process for one network failure
+        if (failures > 3) {
+          throw err
+        }
+        failures++
+      }
+
       await this.sleep(5000)
     }
 
