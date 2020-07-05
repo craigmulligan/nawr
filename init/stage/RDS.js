@@ -173,7 +173,6 @@ class RDS {
     try {
       secret = await this.secretsmanager
         .createSecret({
-          ClientRequestToken: nanoid(),
           Description: 'next-sql-db-password',
           Name: identifier,
           SecretString: JSON.stringify({

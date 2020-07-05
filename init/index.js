@@ -4,7 +4,7 @@ const path = require('path')
 const log = require('../log')
 const pkg = require('../package.json')
 const stages = require('./stage')
-const { getCredentials, setCredentials } = require('./credentials')
+const { setCredentials } = require('./credentials')
 
 const getEnv = async envFilePath => {
   // always use an .env file if available

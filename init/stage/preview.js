@@ -10,8 +10,8 @@ const nanoId = require('../id')
 const compile = require('../../build/webpack')
 
 class PreviewStage extends Stage {
-  constructor(id, engine) {
-    super(id, engine)
+  constructor(id, engine, dir) {
+    super(id, engine, dir)
 
     this.rds = new RDS()
     this.lambda = new Lambda()
@@ -51,7 +51,7 @@ class PreviewStage extends Stage {
 
     const fns = files.map(p => {
       const name = path.parse(p).name
-      return [name, `workers-${name}-${id}-${uuid}`, `${workersDir}/${p}`]
+      return [name, `workers-${name}-${id}:${uuid}`, `${workersDir}/${p}`]
     })
 
     const fnMap = fns.reduce((acc, [key, value]) => {

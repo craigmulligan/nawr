@@ -3,12 +3,12 @@ const RDS = require('./RDS')
 const pkg = require('../../package.json')
 
 class ProductionStage extends Preview {
-  constructor(id, engine) {
+  constructor(id, engine, dir) {
     if (!id) {
       throw new Error('In production stage a database an --id must be provided')
     }
 
-    super(id, engine)
+    super(id, engine, dir)
   }
 
   _createDB() {
