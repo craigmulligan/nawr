@@ -21,13 +21,6 @@ const NAWR_WORKER_CONNECTION = {
 }
 
 class DevelopmentState extends Stage {
-  static getCredentials() {
-    return {
-      accessKeyId: 'local-dummy-accesskey',
-      secretAccessKey: 'local-dummy-accesskey'
-    }
-  }
-
   _createDB() {
     return compose
       .upAll({

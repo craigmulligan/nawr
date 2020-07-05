@@ -4,6 +4,7 @@ const path = require('path')
 const log = require('../log')
 const pkg = require('../package.json')
 const stages = require('./stage')
+const { getCredentials, setCredentials } = require('./credentials')
 
 const getEnv = async envFilePath => {
   // always use an .env file if available
@@ -23,6 +24,7 @@ const setEnv = async (envFilePath, env) => {
 }
 
 const init = async ({ engine, stage, id }) => {
+  setCredentials(stage)
   const infra = new stages[stage](id, 'aurora-' + engine)
   const connectionValues = await infra.createDB()
   // // wait on available
