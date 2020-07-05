@@ -1,6 +1,6 @@
 const fetch = require('node-fetch').default
 const AWS = require('aws-sdk')
-const { getCredentials, setCredentials } = require('./init/credentials')
+const { setCredentials } = require('./init/credentials')
 
 if (!process.env.NAWR_WORKER_CONNECTION) {
   throw new Error(
