@@ -17,7 +17,7 @@ class PreviewStage extends Stage {
     this.lambda = new Lambda()
   }
 
-  async _create() {
+  async _createDB() {
     const opts = {
       ScalingConfiguration: {
         AutoPause: true,
