@@ -9,9 +9,6 @@ class ProductionStage extends Preview {
     }
 
     super(id, engine)
-
-    this.constructor.setCredentials()
-    this.rds = new RDS()
   }
 
   _createDB() {

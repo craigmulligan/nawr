@@ -2,7 +2,12 @@
 const { createServer } = require('http')
 const { parse } = require('url')
 const resolveCwd = require('resolve-cwd')
-const next = require(resolveCwd('next'))
+let next
+try {
+  next = require(resolveCwd('next'))
+} catch (err) {
+  next = require('next')
+}
 const worker = require('./worker')
 const log = require('../log')
 
