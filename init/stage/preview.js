@@ -51,7 +51,7 @@ class PreviewStage extends Stage {
 
     const fns = files.map(p => {
       const name = path.parse(p).name
-      return [name, `workers-${name}-${id}:${uuid}`, `${workersDir}/${p}`]
+      return [name, `${name}-${uuid}`, `${workersDir}/${p}`]
     })
 
     const fnMap = fns.reduce((acc, [key, value]) => {
