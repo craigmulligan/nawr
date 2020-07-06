@@ -10,7 +10,18 @@ const getEnv = async envFilePath => {
   // always use an .env file if available
   try {
     await fs.access(envFilePath)
-    return envfile.parseFileSync(envFilePath)
+    const env = envfile.parseFileSync(envFilePath)
+    const allowList = Object.entries(process.env).reduce((acc, [k, v]) => {
+      if (k.startsWith('NAWR_')) {
+        acc[k] = v
+      }
+      return acc
+    }, {})
+
+    return {
+      ...env,
+      ...allowList
+    }
   } catch (err) {
     // todo specifically handle err code
     // doesnt exist

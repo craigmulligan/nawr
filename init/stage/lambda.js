@@ -6,6 +6,12 @@ const path = require('path')
 const os = require('os')
 const stat = promisify(fs.stat)
 
+const wait = n => {
+  return new Promise(res => {
+    setTimeout(res, n)
+  })
+}
+
 class Lambda {
   constructor() {
     this.lambda = new AWS.Lambda()
@@ -39,7 +45,7 @@ class Lambda {
   }
 
   async createRole() {
-    const RoleName = 'nawr-worker-execution-role'
+    const RoleName = 'nawr-basic-lambda-role'
     const policy = {
       Version: '2012-10-17',
       Statement: [
@@ -63,11 +69,17 @@ class Lambda {
 
       await this.iam
         .attachRolePolicy({
-          PolicyArn: 'arn:aws:iam::aws:policy/service-role/AWSLambdaRole',
+          PolicyArn:
+            'arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole',
           RoleName
         })
         .promise()
 
+      // there is a bug where if you use the policy to soon
+      // the lambda create function will fail
+      // so need to sleep on first create.
+
+      await wait(5000)
       return data.Role.Arn
     } catch (err) {
       if (err.code == 'EntityAlreadyExists') {
