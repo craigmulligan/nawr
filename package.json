@@ -17,13 +17,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/hobochild/now-now.git"
+    "url": "git+ssh://git@github.com/hobochild/nawr.git"
   },
-  "keywords": ["serverless", "next.js", "sql"],
+  "keywords": [
+    "serverless",
+    "next.js",
+    "sql"
+  ],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/hobochild/now-now/issues"
+    "url": "https://github.com/hobochild/nawr/issues"
   },
   "devDependencies": {
     "execa": "^4.0.2",
@@ -51,5 +55,5 @@
   "peerDependencies": {
     "next": ">=9.4.4"
   },
-  "homepage": "https://github.com/hobochild/now-now#readme"
+  "homepage": "https://github.com/hobochild/nawr#readme"
 }

@@ -4,6 +4,7 @@ const getPort = require('get-port')
 const execa = require('execa')
 const log = require('../log')
 const compile = require('../build/webpack')
+const path = require('path')
 
 const run = async (fileName, event) => {
   const sourceDir = process.cwd()
@@ -11,7 +12,8 @@ const run = async (fileName, event) => {
   const env = await getEnv(sourceDir + '/.env')
 
   log.wait(`Compiling worker: ${fileName}`)
-  await compile(sourceDir, 'workers', `${fileName}`)
+  const [handlerName] = await compile(sourceDir, 'workers', `${fileName}`, true)
+  console.log(handlerName)
 
   log.wait(`Running worker: ${fileName}`)
   const name = id()
@@ -41,7 +43,7 @@ const run = async (fileName, event) => {
     ...dockerEnv,
     ...[
       'lambci/lambda:nodejs12.x',
-      `${fileName}.default`,
+      `${path.parse(handlerName).name}.default`,
       JSON.stringify(event)
     ]
   ]

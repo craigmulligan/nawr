@@ -5,7 +5,7 @@ const log = require('../log')
 const readdir = promisify(require('fs').readdir)
 const path = require('path')
 
-module.exports = async (sourceDir, dir, fileName) => {
+module.exports = async (sourceDir, dir, fileName, withHash = false) => {
   const entries = {}
   const p = `/${sourceDir}` + `/${dir}/`
 
@@ -19,12 +19,14 @@ module.exports = async (sourceDir, dir, fileName) => {
     })
   }
 
+  const outFileName = withHash ? '[name]-[hash].js' : '[name].js'
+
   const config = {
     target: 'node',
     entry: entries,
     mode: 'production',
     output: {
-      filename: '[name].js',
+      filename: outFileName,
       path: sourceDir + '/.nawr/' + dir,
       libraryTarget: 'commonjs'
     },
@@ -42,11 +44,22 @@ module.exports = async (sourceDir, dir, fileName) => {
           test: /\.m?js$/,
           exclude: /(node_modules)/,
           use: [
-            'cache-loader',
+            {
+              loader: 'cache-loader',
+              options: {
+                cacheContext: sourceDir,
+                cacheDirectory: path.join(
+                  sourceDir,
+                  '.nawr',
+                  'cache',
+                  'webpack'
+                )
+              }
+            },
             {
               loader: 'babel-loader',
               options: {
-                presets: ['@babel/preset-env']
+                presets: ['next/babel']
               }
             }
           ]
@@ -66,5 +79,9 @@ module.exports = async (sourceDir, dir, fileName) => {
   if (stats.hasWarnings()) {
     log.warn(info.warnings)
   }
+
   log.event(`Compiled ${dir}: ${fileName ? fileName : '*'}`)
+  return info.chunks.reduce((acc, chunk) => {
+    return [...acc, ...chunk.files]
+  }, [])
 }
