@@ -7,16 +7,17 @@ const stages = require('./stage')
 const { setCredentials } = require('./credentials')
 
 const getEnv = async envFilePath => {
+  const allowList = Object.entries(process.env).reduce((acc, [k, v]) => {
+    if (k.startsWith('NAWR_')) {
+      acc[k] = v
+    }
+    return acc
+  }, {})
+
   // always use an .env file if available
   try {
     await fs.access(envFilePath)
     const env = envfile.parseFileSync(envFilePath)
-    const allowList = Object.entries(process.env).reduce((acc, [k, v]) => {
-      if (k.startsWith('NAWR_')) {
-        acc[k] = v
-      }
-      return acc
-    }, {})
 
     return {
       ...env,
@@ -25,7 +26,7 @@ const getEnv = async envFilePath => {
   } catch (err) {
     // todo specifically handle err code
     // doesnt exist
-    return {}
+    return allowList
   }
 }
 

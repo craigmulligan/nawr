@@ -1,6 +1,6 @@
 {
   "name": "nawr",
-  "version": "0.1.0-beta-0.25",
+  "version": "0.1.0-beta-0.27",
   "description": "on-demand serverless sql dbs",
   "main": "init.js",
   "bin": {
@@ -19,11 +19,7 @@
     "type": "git",
     "url": "git+ssh://git@github.com/hobochild/now-now.git"
   },
-  "keywords": [
-    "serverless",
-    "next.js",
-    "sql"
-  ],
+  "keywords": ["serverless", "next.js", "sql"],
   "author": "hobochild",
   "license": "ISC",
   "bugs": {
