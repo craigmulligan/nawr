@@ -43,7 +43,7 @@
     "envfile": "^5.2.0",
     "get-port": "^5.1.1",
     "nanoid": "^3.1.9",
-    "node-fetch": "^2.6.0",
+    "node-fetch": "^3.1.1",
     "umzug": "^2.3.0",
     "webpack": "^4.43.0",
     "yargs": "^15.3.1"
